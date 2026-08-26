@@ -1,0 +1,321 @@
+@import "tailwindcss";
+
+@theme {
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+
+  --color-red-50: #fef2f2;
+  --color-red-100: #fee2e2;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  --font-sans: 'Figtree', system-ui, sans-serif;
+  --radius-card: 6px;
+}
+
+/* Traditional form styling */
+.form-fieldset {
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-card);
+  padding: 1rem 1.25rem;
+  background: white;
+}
+
+.form-fieldset legend {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  padding: 0 0.5rem;
+}
+
+.input-traditional {
+  width: 100%;
+  height: 2.5rem;
+  border: 2px solid var(--color-gray-300);
+  border-radius: 4px;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+  background: white;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-traditional:hover {
+  border-color: var(--color-gray-400);
+}
+
+.input-traditional:focus {
+  outline: none;
+  border-color: var(--color-blue-600);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.input-traditional:disabled {
+  background: var(--color-gray-100);
+  cursor: not-allowed;
+}
+
+.input-traditional.error {
+  border-color: var(--color-red-500);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Traditional button styles */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1.25rem;
+  background: var(--color-blue-600);
+  color: white;
+  border: 2px solid var(--color-blue-700);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.btn-primary:hover {
+  background: var(--color-blue-700);
+  border-color: var(--color-blue-800);
+}
+
+.btn-primary:active {
+  background: var(--color-blue-800);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  background: white;
+  color: var(--color-gray-700);
+  border: 2px solid var(--color-gray-300);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-400);
+}
+
+.btn-secondary:active {
+  background: var(--color-gray-100);
+}
+
+/* Status indicators - functional colors */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.status-normal {
+  background: var(--color-emerald-50);
+  color: var(--color-emerald-700);
+  border-color: var(--color-emerald-200);
+}
+
+.status-warning {
+  background: var(--color-amber-50);
+  color: var(--color-amber-600);
+  border-color: var(--color-amber-200);
+}
+
+.status-danger {
+  background: var(--color-red-50);
+  color: var(--color-red-600);
+  border-color: var(--color-red-200);
+}
+
+.status-info {
+  background: var(--color-blue-50);
+  color: var(--color-blue-700);
+  border-color: var(--color-blue-200);
+}
+
+/* Section dividers */
+.section-divider {
+  border-top: 2px solid var(--color-gray-200);
+  margin: 1.5rem 0;
+}
+
+/* Table styling - traditional with clear borders */
+.table-traditional {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.table-traditional th {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+  font-weight: 700;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 2px solid var(--color-gray-200);
+  text-align: left;
+}
+
+.table-traditional td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.table-traditional tbody tr:hover {
+  background: var(--color-gray-50);
+}
+
+.table-traditional .subtotal-row {
+  background: var(--color-gray-50);
+  font-weight: 600;
+}
+
+.table-traditional .total-row {
+  background: var(--color-blue-600);
+  color: white;
+  font-weight: 700;
+}
+
+.table-traditional .total-row td {
+  border-bottom: none;
+}
+
+/* Card with clear structure */
+.card-traditional {
+  background: white;
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Metric card - functional layout */
+.metric-card {
+  background: white;
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-card);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 140px;
+}
+
+.metric-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-gray-900);
+  margin: 0.5rem 0;
+  line-height: 1;
+}
+
+/* Progress bar - traditional style */
+.progress-bar {
+  height: 0.75rem;
+  background: var(--color-gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--color-gray-300);
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Help text and hints */
+.help-text {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  margin-top: 0.25rem;
+}
+
+.error-text {
+  font-size: 0.75rem;
+  color: var(--color-red-600);
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+/* Touch targets - HCI minimum 44px */
+@media (pointer: coarse) {
+  .input-traditional,
+  .btn-primary,
+  .btn-secondary {
+    min-height: 44px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print { display: none !important; }
+  .card-traditional { box-shadow: none; border: 1px solid #ccc; }
+}
