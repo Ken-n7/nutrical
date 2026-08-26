@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-blue-50: #eff6ff;
-  --color-blue-100: #dbeafe;
-  --color-blue-200: #bfdbfe;
-  --color-blue-500: #3b82f6;
-  --color-blue-600: #2563eb;
-  --color-blue-700: #1d4ed8;
-  --color-blue-800: #1e40af;
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f6e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+  --color-teal-800: #115e59;
+  --color-teal-900: #134e4a;
 
   --color-emerald-50: #ecfdf5;
   --color-emerald-100: #d1fae5;
@@ -18,11 +21,13 @@
 
   --color-amber-50: #fffbeb;
   --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
   --color-amber-500: #f59e0b;
   --color-amber-600: #d97706;
 
   --color-red-50: #fef2f2;
   --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
   --color-red-500: #ef4444;
   --color-red-600: #dc2626;
 
@@ -43,7 +48,7 @@
 
 /* Traditional form styling */
 .form-fieldset {
-  border: 2px solid var(--color-gray-200);
+  border: 2px solid var(--color-teal-200);
   border-radius: var(--radius-card);
   padding: 1rem 1.25rem;
   background: white;
@@ -52,7 +57,7 @@
 .form-fieldset legend {
   font-weight: 700;
   font-size: 0.875rem;
-  color: var(--color-gray-700);
+  color: var(--color-teal-800);
   padding: 0 0.5rem;
 }
 
@@ -69,13 +74,13 @@
 }
 
 .input-traditional:hover {
-  border-color: var(--color-gray-400);
+  border-color: var(--color-teal-400);
 }
 
 .input-traditional:focus {
   outline: none;
-  border-color: var(--color-blue-600);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: var(--color-teal-600);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
 .input-traditional:disabled {
@@ -95,9 +100,9 @@
   gap: 0.5rem;
   height: 2.5rem;
   padding: 0 1.25rem;
-  background: var(--color-blue-600);
+  background: var(--color-teal-600);
   color: white;
-  border: 2px solid var(--color-blue-700);
+  border: 2px solid var(--color-teal-700);
   border-radius: 4px;
   font-weight: 600;
   font-size: 0.875rem;
@@ -107,18 +112,18 @@
 }
 
 .btn-primary:hover {
-  background: var(--color-blue-700);
-  border-color: var(--color-blue-800);
+  background: var(--color-teal-700);
+  border-color: var(--color-teal-800);
 }
 
 .btn-primary:active {
-  background: var(--color-blue-800);
+  background: var(--color-teal-800);
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .btn-primary:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3);
 }
 
 .btn-secondary {
@@ -128,8 +133,8 @@
   height: 2.5rem;
   padding: 0 1rem;
   background: white;
-  color: var(--color-gray-700);
-  border: 2px solid var(--color-gray-300);
+  color: var(--color-teal-700);
+  border: 2px solid var(--color-teal-300);
   border-radius: 4px;
   font-weight: 600;
   font-size: 0.875rem;
@@ -138,12 +143,12 @@
 }
 
 .btn-secondary:hover {
-  background: var(--color-gray-50);
-  border-color: var(--color-gray-400);
+  background: var(--color-teal-50);
+  border-color: var(--color-teal-400);
 }
 
 .btn-secondary:active {
-  background: var(--color-gray-100);
+  background: var(--color-teal-100);
 }
 
 /* Status indicators - functional colors */
@@ -177,15 +182,9 @@
 }
 
 .status-info {
-  background: var(--color-blue-50);
-  color: var(--color-blue-700);
-  border-color: var(--color-blue-200);
-}
-
-/* Section dividers */
-.section-divider {
-  border-top: 2px solid var(--color-gray-200);
-  margin: 1.5rem 0;
+  background: var(--color-teal-50);
+  color: var(--color-teal-700);
+  border-color: var(--color-teal-200);
 }
 
 /* Table styling - traditional with clear borders */
@@ -193,20 +192,20 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8125rem;
-  border: 2px solid var(--color-gray-200);
+  border: 2px solid var(--color-teal-200);
   border-radius: var(--radius-card);
   overflow: hidden;
 }
 
 .table-traditional th {
-  background: var(--color-gray-100);
-  color: var(--color-gray-600);
+  background: var(--color-teal-50);
+  color: var(--color-teal-800);
   font-weight: 700;
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.625rem 0.75rem;
-  border-bottom: 2px solid var(--color-gray-200);
+  border-bottom: 2px solid var(--color-teal-200);
   text-align: left;
 }
 
@@ -216,16 +215,16 @@
 }
 
 .table-traditional tbody tr:hover {
-  background: var(--color-gray-50);
+  background: var(--color-teal-50);
 }
 
 .table-traditional .subtotal-row {
-  background: var(--color-gray-50);
+  background: var(--color-teal-50);
   font-weight: 600;
 }
 
 .table-traditional .total-row {
-  background: var(--color-blue-600);
+  background: var(--color-teal-600);
   color: white;
   font-weight: 700;
 }
@@ -237,15 +236,15 @@
 /* Card with clear structure */
 .card-traditional {
   background: white;
-  border: 2px solid var(--color-gray-200);
+  border: 2px solid var(--color-teal-200);
   border-radius: var(--radius-card);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(13, 148, 136, 0.08);
 }
 
 /* Metric card - functional layout */
 .metric-card {
   background: white;
-  border: 2px solid var(--color-gray-200);
+  border: 2px solid var(--color-teal-200);
   border-radius: var(--radius-card);
   padding: 1rem;
   display: flex;
@@ -256,7 +255,7 @@
 .metric-label {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: var(--color-gray-500);
+  color: var(--color-teal-600);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }

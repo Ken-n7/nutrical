@@ -85,9 +85,10 @@ export function useNutriCal() {
 
   const updateExchange = useCallback((key, value) => {
     const num = parseFloat(value);
+    const capped = Number.isFinite(num) && num >= 0 ? Math.min(num, 20) : 0;
     setExchanges((prev) => ({
       ...prev,
-      [key]: Number.isFinite(num) && num >= 0 ? num : 0,
+      [key]: capped,
     }));
   }, []);
 
@@ -97,9 +98,10 @@ export function useNutriCal() {
     const htCm = totalInches * 2.54;
     const wtLbs = parseFloat(weight) || 0;
     const af = parseFloat(activity) || 35;
+    const frameNum = parseFloat(frame) || 1;
     const dist = (distribution || '65,15,20').split(',').map(Number);
 
-    if (![parseFloat(age), totalInches, wtLbs, frame, af].every(Number.isFinite)) {
+    if (![parseFloat(age), totalInches, wtLbs, frameNum, af].every(Number.isFinite)) {
       return null;
     }
 
@@ -107,7 +109,7 @@ export function useNutriCal() {
     const bmi = bmiOf(weightKg, htCm);
     const bmiInfo = bmiClass(bmi);
 
-    const dbw = dbwHamwi(sex, totalInches, frame);
+    const dbw = dbwHamwi(sex, totalInches, frameNum);
     const dbwPercent = dbw.kg > 0 ? (weightKg / dbw.kg) * 100 : 0;
     const dbwInfo = dbwClass(dbwPercent);
 

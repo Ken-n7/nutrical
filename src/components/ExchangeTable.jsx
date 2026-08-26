@@ -1,32 +1,41 @@
 import { useCallback } from 'react';
 import { fmt1, fmtInt, fmtValue } from '../hooks/useNutriCal';
 
+const EXCHANGE_MAX = 20;
+
 function ExchangeInput({ value, onChange, label }) {
   const handleBlur = useCallback((e) => {
     const val = e.target.value;
-    if (val === '' || Number(val) < 0 || !Number.isFinite(Number(val))) {
+    const num = Number(val);
+    if (val === '' || num < 0 || !Number.isFinite(num)) {
       onChange({ target: { value: '0' } });
+    } else if (num > EXCHANGE_MAX) {
+      onChange({ target: { value: String(EXCHANGE_MAX) } });
     }
   }, [onChange]);
+
+  const isHigh = Number(value) > EXCHANGE_MAX;
 
   return (
     <input
       type="number"
       min="0"
+      max={EXCHANGE_MAX}
       step="any"
       inputMode="decimal"
       value={value}
       onChange={onChange}
       onBlur={handleBlur}
-      className="input-traditional w-20 text-center"
+      className={`input-traditional w-20 text-center ${isHigh ? 'border-amber-500 focus:border-amber-600 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.15)]' : ''}`}
       aria-label={label}
+      aria-invalid={isHigh}
     />
   );
 }
 
 function PrescriptionBadge({ label, value }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-gray-200 rounded text-sm font-semibold text-gray-600">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-teal-200 rounded text-sm font-semibold text-teal-700">
       {label} <strong className="text-gray-900">{value}</strong>
     </span>
   );
@@ -71,8 +80,8 @@ export default function ExchangeTable({ exchanges, updateExchange, exchangeData,
       </div>
 
       {/* Current prescription summary */}
-      <div className="flex flex-wrap items-center gap-2 bg-gray-100 border-2 border-gray-200 rounded px-4 py-3 mb-4">
-        <span className="text-xs font-bold text-gray-500 mr-auto uppercase tracking-wide">Current Prescription</span>
+      <div className="flex flex-wrap items-center gap-2 bg-teal-50 border-2 border-teal-200 rounded px-4 py-3 mb-4">
+        <span className="text-xs font-bold text-teal-700 mr-auto uppercase tracking-wide">Current Prescription</span>
         <PrescriptionBadge label="CHO" value={`${fmt1(targetCho)} g`} />
         <PrescriptionBadge label="CHON" value={`${fmt1(targetChon)} g`} />
         <PrescriptionBadge label="Fat" value={`${fmt1(targetFat)} g`} />
@@ -187,7 +196,7 @@ export default function ExchangeTable({ exchanges, updateExchange, exchangeData,
           </table>
         </div>
         <p className="text-xs text-gray-400 px-4 py-2 border-t-2 border-gray-100 m-0">
-          Tip: Click an exchange value to edit. Fractional exchanges are accepted (e.g., 2.5).
+          Tip: Click an exchange value to edit. Fractional exchanges are accepted (e.g., 2.5). Max {EXCHANGE_MAX} per group.
         </p>
       </div>
 

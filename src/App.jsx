@@ -51,17 +51,17 @@ export default function App() {
       <header className="bg-white border-b-2 border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center gap-5">
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 bg-blue-700 text-white rounded flex items-center justify-center text-lg font-extrabold">N</span>
+            <span className="w-10 h-10 bg-teal-700 text-white rounded flex items-center justify-center text-lg font-extrabold">N</span>
             <div className="leading-tight">
               <strong className="text-base font-bold text-gray-900">NutriCal</strong>
-              <span className="block text-xs text-gray-500">FEL Exchange Calculator</span>
+              <span className="block text-xs text-teal-600">FEL Exchange Calculator</span>
             </div>
           </div>
 
           <nav className="ml-auto flex items-center gap-1" aria-label="Primary navigation">
-            <a href="#patient" className="px-3 py-2 text-sm font-semibold text-gray-600 rounded hover:bg-gray-100 transition-colors">Patient</a>
-            <a href="#assessment" className="px-3 py-2 text-sm font-semibold text-gray-600 rounded hover:bg-gray-100 transition-colors">Assessment</a>
-            <a href="#prescription" className="px-3 py-2 text-sm font-semibold text-gray-600 rounded hover:bg-gray-100 transition-colors">Exchanges</a>
+            <a href="#patient" className="px-3 py-2 text-sm font-semibold text-teal-700 rounded hover:bg-teal-50 transition-colors">Patient</a>
+            <a href="#assessment" className="px-3 py-2 text-sm font-semibold text-teal-700 rounded hover:bg-teal-50 transition-colors">Assessment</a>
+            <a href="#prescription" className="px-3 py-2 text-sm font-semibold text-teal-700 rounded hover:bg-teal-50 transition-colors">Exchanges</a>
           </nav>
 
           <button

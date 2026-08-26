@@ -1,14 +1,80 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
+
+const VALIDATORS = {
+  age: (v) => {
+    const n = parseFloat(v);
+    if (!Number.isFinite(n)) return 'Required';
+    if (n < 1 || n > 120) return 'Must be 1–120 years';
+    return null;
+  },
+  heightFt: (v, patient) => {
+    const ft = parseInt(v, 10);
+    const inches = parseInt(patient.heightIn, 10) || 0;
+    const total = ft * 12 + inches;
+    if (!Number.isFinite(total) || total === 0) return 'Required';
+    if (total < 36 || total > 96) return 'Total height must be 3–8 ft';
+    return null;
+  },
+  heightIn: (v, patient) => {
+    const inches = parseInt(v, 10);
+    if (!Number.isFinite(inches)) return null;
+    if (inches < 0 || inches > 11) return 'Must be 0–11 inches';
+    const ft = parseInt(patient.heightFt, 10) || 0;
+    const total = ft * 12 + inches;
+    if (total < 36 || total > 96) return 'Total height must be 3–8 ft';
+    return null;
+  },
+  weight: (v) => {
+    const n = parseFloat(v);
+    if (!Number.isFinite(n)) return 'Required';
+    if (n < 30 || n > 500) return 'Must be 30–500 lb';
+    return null;
+  },
+};
 
 export default function PatientForm({ patient, updatePatient, error, onCompute }) {
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const patientRef = useRef(patient);
+  patientRef.current = patient;
+
   const handleChange = useCallback((field) => (e) => {
     updatePatient(field, e.target.value);
+    setFieldErrors((prev) => {
+      if (prev[field]) return { ...prev, [field]: null };
+      return prev;
+    });
   }, [updatePatient]);
 
+  const handleBlur = useCallback((field) => () => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const validator = VALIDATORS[field];
+    if (validator) {
+      const current = patientRef.current;
+      const err = validator(current[field], current);
+      setFieldErrors((prev) => ({ ...prev, [field]: err }));
+    }
+  }, []);
+
   const handleCompute = useCallback(() => {
+    const errors = {};
+    for (const [field, validator] of Object.entries(VALIDATORS)) {
+      const err = validator(patient[field], patient);
+      if (err) errors[field] = err;
+    }
+    setFieldErrors(errors);
+    setTouched({ age: true, heightFt: true, heightIn: true, weight: true });
     onCompute();
-    document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [onCompute]);
+    if (Object.keys(errors).length === 0) {
+      document.getElementById('assessment')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [onCompute, patient]);
+
+  const fieldClass = (field) => {
+    const base = 'input-traditional';
+    if (touched[field] && fieldErrors[field]) return `${base} border-red-500 focus:border-red-600 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]`;
+    return base;
+  };
 
   return (
     <section id="patient" className="scroll-mt-20 mb-8">
@@ -17,7 +83,7 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
           <legend>Patient Information</legend>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-            {/* Name - spans full width on mobile, 2 cols on desktop */}
+            {/* Name */}
             <div className="md:col-span-2">
               <label htmlFor="f-name" className="block text-sm font-semibold text-gray-700 mb-1">
                 Patient Name
@@ -28,7 +94,7 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
                 value={patient.name}
                 onChange={handleChange('name')}
                 autoComplete="off"
-                className="input-traditional"
+                className={fieldClass('name')}
                 placeholder="Enter patient name"
               />
               <p className="help-text">Optional - for identification purposes</p>
@@ -47,8 +113,14 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
                 max="120"
                 inputMode="numeric"
                 onChange={handleChange('age')}
-                className="input-traditional"
+                onBlur={handleBlur('age')}
+                className={fieldClass('age')}
+                aria-invalid={!!fieldErrors.age}
+                aria-describedby={fieldErrors.age ? 'f-age-error' : undefined}
               />
+              {touched.age && fieldErrors.age && (
+                <p id="f-age-error" className="error-text">{fieldErrors.age}</p>
+              )}
             </div>
 
             {/* Sex */}
@@ -85,14 +157,18 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
               <p className="help-text">Adjusts DBW calculation</p>
             </div>
 
-            {/* Height - two inputs in one field */}
+            {/* Height */}
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 Height
               </label>
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <div className="flex items-center border-2 border-gray-300 rounded focus-within:border-blue-600 focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.15)]">
+                  <div className={`flex items-center border-2 rounded focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] ${
+                    touched.heightFt && fieldErrors.heightFt
+                      ? 'border-red-500 focus-within:border-red-600'
+                      : 'border-gray-300 focus-within:border-blue-600'
+                  }`}>
                     <input
                       type="number"
                       value={patient.heightFt}
@@ -100,14 +176,20 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
                       max="8"
                       inputMode="numeric"
                       aria-label="Height in feet"
+                      aria-invalid={!!fieldErrors.heightFt}
                       onChange={handleChange('heightFt')}
+                      onBlur={handleBlur('heightFt')}
                       className="w-full h-10 border-0 px-3 text-sm text-center text-gray-900 outline-none bg-white"
                     />
                     <span className="text-sm text-gray-500 font-semibold pr-3">ft</span>
                   </div>
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center border-2 border-gray-300 rounded focus-within:border-blue-600 focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.15)]">
+                  <div className={`flex items-center border-2 rounded focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.15)] ${
+                    touched.heightIn && fieldErrors.heightIn
+                      ? 'border-red-500 focus-within:border-red-600'
+                      : 'border-gray-300 focus-within:border-blue-600'
+                  }`}>
                     <input
                       type="number"
                       value={patient.heightIn}
@@ -115,13 +197,18 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
                       max="11"
                       inputMode="numeric"
                       aria-label="Height in inches"
+                      aria-invalid={!!fieldErrors.heightIn}
                       onChange={handleChange('heightIn')}
+                      onBlur={handleBlur('heightIn')}
                       className="w-full h-10 border-0 px-3 text-sm text-center text-gray-900 outline-none bg-white"
                     />
                     <span className="text-sm text-gray-500 font-semibold pr-3">in</span>
                   </div>
                 </div>
               </div>
+              {(touched.heightFt || touched.heightIn) && (fieldErrors.heightFt || fieldErrors.heightIn) && (
+                <p className="error-text">{fieldErrors.heightFt || fieldErrors.heightIn}</p>
+              )}
               <p className="help-text">Used for Hamwi DBW calculation</p>
             </div>
 
@@ -139,9 +226,15 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
                 step="0.1"
                 inputMode="decimal"
                 onChange={handleChange('weight')}
-                className="input-traditional"
+                onBlur={handleBlur('weight')}
+                className={fieldClass('weight')}
+                aria-invalid={!!fieldErrors.weight}
+                aria-describedby={fieldErrors.weight ? 'f-weight-error' : undefined}
               />
-              <p className="help-text">Actual body weight</p>
+              {touched.weight && fieldErrors.weight && (
+                <p id="f-weight-error" className="error-text">{fieldErrors.weight}</p>
+              )}
+              {!fieldErrors.weight && <p className="help-text">Actual body weight</p>}
             </div>
 
             {/* Activity Factor */}
@@ -184,7 +277,7 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
           </div>
         </fieldset>
 
-        {/* Error display - visible when present */}
+        {/* Error display */}
         {error && (
           <div className="mt-4 p-3 bg-red-50 border-2 border-red-200 rounded" role="alert" aria-live="assertive">
             <p className="text-sm text-red-700 font-semibold m-0">{error}</p>

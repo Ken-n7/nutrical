@@ -48,7 +48,7 @@ export default function AssessmentDisplay({ assessment }) {
             grams={targetCho}
             pct={choPct}
             kcal={fmtInt(ter * choPct / 100)}
-            color="bg-blue-600"
+            color="bg-teal-600"
           />
           <MacroTarget
             label="Protein (CHON)"
