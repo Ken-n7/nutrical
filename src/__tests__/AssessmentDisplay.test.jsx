@@ -13,7 +13,7 @@ const mockAssessment = {
   terRaw: 1670.55,
   dist: [65, 15, 20],
   targetCho: 271.4,
-  targetChon: 62.6,
+  targetProtein: 62.6,
   targetFat: 37.1,
 };
 
@@ -77,9 +77,9 @@ describe('AssessmentDisplay', () => {
       expect(screen.getByText(/65%/)).toBeInTheDocument();
     });
 
-    it('displays CHON target', () => {
+    it('displays Protein target', () => {
       render(<AssessmentDisplay assessment={mockAssessment} />);
-      expect(screen.getByText('Protein (CHON)')).toBeInTheDocument();
+      expect(screen.getByText('Protein')).toBeInTheDocument();
       expect(screen.getByText('62.6 g')).toBeInTheDocument();
       expect(screen.getByText(/15%/)).toBeInTheDocument();
     });

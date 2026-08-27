@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExchangeTable from '../components/ExchangeTable';
 
 const defaultExchanges = {
-  veg: 3, fruit: 5, milk: 1, sugar: 3,
+  veg: 3, fruit: 5, milkWhole: 0, milk: 1, milkSkim: 0, sugar: 3,
   riceA: 1, riceB: 5, riceC: 1,
   meatLow: 2, meatMed: 2, meatHigh: 0, fat: 2,
 };
@@ -14,29 +14,31 @@ const defaultAssessment = {
   ter: 1670,
   dist: [65, 15, 20],
   targetCho: 271.4,
-  targetChon: 62.6,
+  targetProtein: 62.6,
   targetFat: 37.1,
 };
 
 const defaultExchangeData = {
   rows: [
-    { key: 'veg', count: 3, cho: 9, chon: 3, fat: 0, kcal: 48 },
-    { key: 'fruit', count: 5, cho: 50, chon: 0, fat: 0, kcal: 200 },
-    { key: 'milk', count: 1, cho: 12, chon: 8, fat: 5, kcal: 125 },
-    { key: 'sugar', count: 3, cho: 15, chon: 0, fat: 0, kcal: 60 },
-    { key: 'riceA', count: 1, cho: 23, chon: 0, fat: 0, kcal: 92 },
-    { key: 'riceB', count: 5, cho: 115, chon: 10, fat: 0, kcal: 500 },
-    { key: 'riceC', count: 1, cho: 23, chon: 4, fat: 0, kcal: 108 },
-    { key: 'meatLow', count: 2, cho: 0, chon: 16, fat: 2, kcal: 82 },
-    { key: 'meatMed', count: 2, cho: 0, chon: 16, fat: 12, kcal: 172 },
-    { key: 'meatHigh', count: 0, cho: 0, chon: 0, fat: 0, kcal: 0 },
-    { key: 'fat', count: 2, cho: 0, chon: 0, fat: 10, kcal: 90 },
+    { key: 'veg', count: 3, cho: 9, protein: 3, fat: 0, kcal: 48 },
+    { key: 'fruit', count: 5, cho: 50, protein: 0, fat: 0, kcal: 200 },
+    { key: 'milkWhole', count: 0, cho: 0, protein: 0, fat: 0, kcal: 0 },
+    { key: 'milk', count: 1, cho: 12, protein: 8, fat: 5, kcal: 125 },
+    { key: 'milkSkim', count: 0, cho: 0, protein: 0, fat: 0, kcal: 0 },
+    { key: 'sugar', count: 3, cho: 15, protein: 0, fat: 0, kcal: 60 },
+    { key: 'riceA', count: 1, cho: 23, protein: 0, fat: 0, kcal: 92 },
+    { key: 'riceB', count: 5, cho: 115, protein: 10, fat: 0, kcal: 500 },
+    { key: 'riceC', count: 1, cho: 23, protein: 4, fat: 0, kcal: 108 },
+    { key: 'meatLow', count: 2, cho: 0, protein: 16, fat: 4, kcal: 100 },
+    { key: 'meatMed', count: 2, cho: 0, protein: 16, fat: 14, kcal: 190 },
+    { key: 'meatHigh', count: 0, cho: 0, protein: 0, fat: 0, kcal: 0 },
+    { key: 'fat', count: 2, cho: 0, protein: 0, fat: 10, kcal: 90 },
   ],
-  riceN: 7, riceCho: 161, riceChon: 14, riceFat: 0, riceKcal: 692,
-  meatN: 4, meatChon: 32, meatFat: 14, meatKcal: 254,
-  basicCho: 86, basicChon: 11, basicFat: 5,
-  totalCho: 247, totalChon: 57, totalFat: 29, totalKcal: 1529, totalN: 24,
-  choDiff: -24.4, chonDiff: -5.6, fatDiff: -8.1, kcalDiff: -141, within: false,
+  riceN: 7, riceCho: 161, riceProtein: 14, riceFat: 0, riceKcal: 692,
+  meatN: 4, meatProtein: 32, meatFat: 18, meatKcal: 290,
+  basicCho: 86, basicProtein: 11, basicFat: 5,
+  totalCho: 247, totalProtein: 57, totalFat: 33, totalKcal: 1672, totalN: 24,
+  choDiff: -24.4, proteinDiff: -5.6, fatDiff: -4.1, kcalDiff: 2, within: false,
 };
 
 function renderExchangeTable(overrides = {}) {
@@ -76,7 +78,7 @@ describe('ExchangeTable', () => {
       expect(screen.getByText('Current Prescription')).toBeInTheDocument();
       expect(screen.getAllByText('CHO').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('271.4 g')).toBeInTheDocument();
-      expect(screen.getAllByText('CHON').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('PRO').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('62.6 g')).toBeInTheDocument();
       expect(screen.getByText('TER')).toBeInTheDocument();
       expect(screen.getByText('1,670 kcal')).toBeInTheDocument();
@@ -88,25 +90,27 @@ describe('ExchangeTable', () => {
       renderExchangeTable();
       expect(screen.getByText('Vegetable')).toBeInTheDocument();
       expect(screen.getByText('Fruit')).toBeInTheDocument();
-      expect(screen.getByText('Milk')).toBeInTheDocument();
+      expect(screen.getByText('Whole Milk')).toBeInTheDocument();
+      expect(screen.getByText('Low-Fat Milk')).toBeInTheDocument();
+      expect(screen.getByText('Skim Milk')).toBeInTheDocument();
       expect(screen.getByText('Sugar')).toBeInTheDocument();
-      expect(screen.getByText('Rice A')).toBeInTheDocument();
-      expect(screen.getByText('Rice B')).toBeInTheDocument();
-      expect(screen.getByText('Rice C')).toBeInTheDocument();
-      expect(screen.getByText('LF Meat')).toBeInTheDocument();
-      expect(screen.getByText('MF Meat')).toBeInTheDocument();
-      expect(screen.getByText('HF Meat')).toBeInTheDocument();
+      expect(screen.getByText(/Rice A/)).toBeInTheDocument();
+      expect(screen.getByText(/Rice B/)).toBeInTheDocument();
+      expect(screen.getByText(/Rice C/)).toBeInTheDocument();
+      expect(screen.getByText(/Low-Fat Meat/)).toBeInTheDocument();
+      expect(screen.getByText(/Med-Fat Meat/)).toBeInTheDocument();
+      expect(screen.getByText(/High-Fat Meat/)).toBeInTheDocument();
       expect(screen.getAllByText('Fat').length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders table headers', () => {
       renderExchangeTable();
       expect(screen.getByText('Food Group')).toBeInTheDocument();
-      expect(screen.getByText('Exchanges')).toBeInTheDocument();
+      expect(screen.getByText('Exchange')).toBeInTheDocument();
       expect(screen.getByText('CHO (g)')).toBeInTheDocument();
-      expect(screen.getByText('CHON (g)')).toBeInTheDocument();
+      expect(screen.getByText('PRO (g)')).toBeInTheDocument();
       expect(screen.getByText('Fat (g)')).toBeInTheDocument();
-      expect(screen.getByText('Energy (kcal)')).toBeInTheDocument();
+      expect(screen.getByText('kcal')).toBeInTheDocument();
     });
 
     it('displays exchange values for each row', () => {
@@ -119,9 +123,9 @@ describe('ExchangeTable', () => {
   });
 
   describe('subtotals', () => {
-    it('displays CHO partial sum', () => {
+    it('displays CHO subtotal', () => {
       renderExchangeTable();
-      expect(screen.getByText('CHO Partial Sum')).toBeInTheDocument();
+      expect(screen.getByText('CHO Subtotal')).toBeInTheDocument();
     });
 
     it('displays Rice subtotal', () => {
@@ -129,9 +133,9 @@ describe('ExchangeTable', () => {
       expect(screen.getByText('Rice Subtotal')).toBeInTheDocument();
     });
 
-    it('displays CHON partial sum', () => {
+    it('displays PRO subtotal', () => {
       renderExchangeTable();
-      expect(screen.getByText('CHON Partial Sum')).toBeInTheDocument();
+      expect(screen.getByText('Protein so far')).toBeInTheDocument();
     });
 
     it('displays Meat subtotal', () => {
@@ -139,38 +143,38 @@ describe('ExchangeTable', () => {
       expect(screen.getByText('Meat Subtotal')).toBeInTheDocument();
     });
 
-    it('displays Fat partial sum', () => {
+    it('displays Fat subtotal', () => {
       renderExchangeTable();
-      expect(screen.getByText('Fat Partial Sum')).toBeInTheDocument();
+      expect(screen.getByText('Fat so far (before Fat exchanges)')).toBeInTheDocument();
     });
 
     it('displays grand total', () => {
       renderExchangeTable();
-      expect(screen.getByText('Total Entered')).toBeInTheDocument();
+      expect(screen.getByText('TOTAL')).toBeInTheDocument();
     });
   });
 
   describe('target differences', () => {
-    it('displays CHO target difference', () => {
+    it('displays CHO target', () => {
       renderExchangeTable();
-      expect(screen.getByText(/Entered 247.0 g · target 271.4 g/)).toBeInTheDocument();
+      expect(screen.getByText(/Target 271.4 g/)).toBeInTheDocument();
     });
 
-    it('displays CHON target difference', () => {
+    it('displays PRO target', () => {
       renderExchangeTable();
-      expect(screen.getByText(/Entered 57.0 g · target 62.6 g/)).toBeInTheDocument();
+      expect(screen.getByText(/Target 62.6 g/)).toBeInTheDocument();
     });
 
-    it('displays Fat target difference', () => {
+    it('displays Fat target', () => {
       renderExchangeTable();
-      expect(screen.getByText(/Entered 29.0 g · target 37.1 g/)).toBeInTheDocument();
+      expect(screen.getByText(/Target 37.1 g/)).toBeInTheDocument();
     });
   });
 
   describe('comparison review', () => {
     it('renders comparison section', () => {
       renderExchangeTable();
-      expect(screen.getByText('Prescription vs. Entered Exchanges')).toBeInTheDocument();
+      expect(screen.getByText('Prescription vs Entered Exchanges')).toBeInTheDocument();
     });
 
     it('shows warning badge when outside tolerance', () => {
@@ -191,7 +195,7 @@ describe('ExchangeTable', () => {
 
     it('displays Energy comparison', () => {
       renderExchangeTable();
-      expect(screen.getByText('1,529 / 1,670 kcal')).toBeInTheDocument();
+      expect(screen.getByText('1,672 / 1,670 kcal')).toBeInTheDocument();
     });
   });
 
@@ -220,12 +224,12 @@ describe('ExchangeTable', () => {
       renderExchangeTable();
       expect(screen.getByLabelText('Vegetable exchanges')).toBeInTheDocument();
       expect(screen.getByLabelText('Fruit exchanges')).toBeInTheDocument();
-      expect(screen.getByLabelText('Milk exchanges')).toBeInTheDocument();
+      expect(screen.getByLabelText('Low-Fat Milk exchanges')).toBeInTheDocument();
     });
 
     it('has aria-live on comparison section', () => {
       renderExchangeTable();
-      const comparison = screen.getByText('Prescription vs. Entered Exchanges').closest('[aria-live]');
+      const comparison = screen.getByText('Prescription vs Entered Exchanges').closest('[aria-live]');
       expect(comparison).toHaveAttribute('aria-live', 'polite');
     });
   });

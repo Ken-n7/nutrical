@@ -3,8 +3,8 @@ import { fmt1, fmtInt } from '../hooks/useNutriCal';
 export default function AssessmentDisplay({ assessment }) {
   if (!assessment) return null;
 
-  const { bmi, bmiInfo, dbw, dbwInfo, af, afLabel, ter, terRaw, dist, targetCho, targetChon, targetFat } = assessment;
-  const [choPct, chonPct, fatPct] = dist;
+  const { bmi, bmiInfo, dbw, dbwInfo, af, afLabel, ter, terRaw, dist, targetCho, targetProtein, targetFat } = assessment;
+  const [choPct, proteinPct, fatPct] = dist;
 
   return (
     <section id="assessment" className="scroll-mt-20 mb-8">
@@ -51,10 +51,10 @@ export default function AssessmentDisplay({ assessment }) {
             color="bg-teal-600"
           />
           <MacroTarget
-            label="Protein (CHON)"
-            grams={targetChon}
-            pct={chonPct}
-            kcal={fmtInt(ter * chonPct / 100)}
+            label="Protein"
+            grams={targetProtein}
+            pct={proteinPct}
+            kcal={fmtInt(ter * proteinPct / 100)}
             color="bg-gray-500"
           />
           <MacroTarget

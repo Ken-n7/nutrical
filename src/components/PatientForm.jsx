@@ -77,8 +77,7 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
   };
 
   return (
-    <section id="patient" className="scroll-mt-20 mb-8">
-      <form className="card-traditional p-6" onSubmit={(e) => e.preventDefault()} noValidate>
+    <form className="card-traditional p-6" onSubmit={(e) => e.preventDefault()} noValidate>
         <fieldset className="form-fieldset">
           <legend>Patient Information</legend>
 
@@ -267,10 +266,10 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
                 onChange={handleChange('distribution')}
                 className="input-traditional"
               >
-                <option value="65,15,20">CHO 65% / CHON 15% / Fat 20%</option>
-                <option value="55,15,30">CHO 55% / CHON 15% / Fat 30%</option>
-                <option value="50,20,30">CHO 50% / CHON 20% / Fat 30%</option>
-                <option value="60,15,25">CHO 60% / CHON 15% / Fat 25%</option>
+                <option value="65,15,20">CHO 65% / Protein 15% / Fat 20%</option>
+                <option value="55,15,30">CHO 55% / Protein 15% / Fat 30%</option>
+                <option value="50,20,30">CHO 50% / Protein 20% / Fat 30%</option>
+                <option value="60,15,25">CHO 60% / Protein 15% / Fat 25%</option>
               </select>
               <p className="help-text">Percentage split for TER calculation</p>
             </div>
@@ -286,9 +285,9 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
 
         {/* Action area */}
         <div className="flex items-center justify-between mt-6 pt-4 border-t-2 border-gray-100">
-          <p className="text-sm text-gray-500 m-0">
-            Calculations update as you type. Click Calculate to scroll to results.
-          </p>
+            <p className="text-sm text-gray-500 m-0">
+              Values update as you type. Click the button to jump to Assessment.
+            </p>
           <button
             type="button"
             onClick={handleCompute}
@@ -299,6 +298,5 @@ export default function PatientForm({ patient, updatePatient, error, onCompute }
           </button>
         </div>
       </form>
-    </section>
   );
 }

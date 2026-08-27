@@ -206,7 +206,6 @@
   letter-spacing: 0.05em;
   padding: 0.625rem 0.75rem;
   border-bottom: 2px solid var(--color-teal-200);
-  text-align: left;
 }
 
 .table-traditional td {
@@ -231,6 +230,44 @@
 
 .table-traditional .total-row td {
   border-bottom: none;
+}
+
+/* FEL table enhancements */
+.fel-table .section-header td {
+  background: linear-gradient(135deg, var(--color-teal-50), rgba(204, 251, 241, 0.5));
+}
+
+.fel-table .subgroup-row td {
+  background: rgba(240, 253, 250, 0.4);
+}
+
+.fel-table .diff-row td {
+  padding: 0.125rem 0.75rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.input-exchange {
+  width: 3.25rem;
+  height: 2rem;
+  padding: 0 0.25rem;
+  border: 2px solid var(--color-teal-300);
+  border-radius: var(--radius-btn);
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-teal-700);
+  text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input-exchange:hover {
+  border-color: var(--color-teal-400);
+}
+
+.input-exchange:focus {
+  outline: none;
+  border-color: var(--color-teal-500);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
 /* Card with clear structure */
@@ -311,6 +348,174 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Patient Panel — collapsible overlay */
+.patient-panel-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: white;
+  border-top: 2px solid var(--color-teal-200);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 1.25rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.patient-panel-bar--hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.patient-panel-handle {
+  width: 2rem;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-gray-300);
+  margin-bottom: 0.5rem;
+}
+
+.patient-panel-fab {
+  position: fixed;
+  top: 5rem;
+  right: 1.25rem;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  background: white;
+  border: 2px solid var(--color-teal-200);
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, opacity 0.2s ease;
+}
+
+.patient-panel-fab:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.patient-panel-fab--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .patient-panel-fab {
+    display: inline-flex;
+  }
+  .patient-panel-bar {
+    display: none;
+  }
+}
+
+.patient-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.patient-panel-backdrop--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.patient-panel-sheet {
+  position: fixed;
+  z-index: 50;
+  background: white;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile: bottom sheet */
+.patient-panel-sheet {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 85vh;
+  border-top: 2px solid var(--color-teal-200);
+  border-radius: 1rem 1rem 0 0;
+  transform: translateY(100%);
+}
+
+.patient-panel-sheet--open {
+  transform: translateY(0);
+}
+
+/* Desktop: floating centered box */
+@media (min-width: 1024px) {
+  .patient-panel-sheet {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    width: 520px;
+    max-height: 80vh;
+    border-radius: var(--radius-card);
+    border: 2px solid var(--color-teal-200);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .patient-panel-sheet--open {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.patient-panel-drag-area {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0 0.25rem;
+  cursor: grab;
+}
+
+.patient-panel-drag-area:active {
+  cursor: grabbing;
+}
+
+.patient-panel-drag-bar {
+  width: 2.5rem;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-gray-300);
+}
+
+.patient-panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.patient-panel-scroll .card-traditional {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.patient-panel-scroll .form-fieldset {
+  border: none;
 }
 
 /* Print styles */
