@@ -33,19 +33,19 @@ function MealRow({
 
   let rowClass = 'transition-all duration-150 ease-out ';
   if (isDragging) {
-    rowClass += 'opacity-40 scale-[0.98] bg-teal-50 ';
+    rowClass += 'opacity-40 scale-[0.98] bg-bg ';
   } else if (isOver) {
-    rowClass += 'bg-red-50 ';
+    rowClass += 'bg-amber-50 dark:bg-amber-950/40 ';
   } else if (isEmpty) {
-    rowClass += 'bg-amber-50/50 ';
+    rowClass += 'bg-amber-50/40 dark:bg-amber-950/40 ';
   }
 
   if (isDropTarget && !isDragging) {
-    rowClass += dropSide === 'top' ? 'border-t-2 border-teal-500 ' : 'border-b-2 border-teal-500 ';
+    rowClass += dropSide === 'top' ? 'border-t-2 border-primary ' : 'border-b-2 border-primary ';
   }
 
   const inputCls =
-    'w-full text-xs border-0 bg-transparent py-2 px-1.5 focus:outline-none focus:ring-1 focus:ring-teal-500 rounded cursor-pointer';
+    'w-full text-xs border-0 bg-transparent py-2 px-1.5 focus:outline-none focus:ring-1 focus:ring-primary rounded cursor-pointer';
 
   return (
     <tr
@@ -58,8 +58,8 @@ function MealRow({
     >
       {/* Drag handle */}
       <td className="w-7 cursor-grab active:cursor-grabbing select-none text-center">
-        <span className="inline-flex items-center justify-center text-gray-300 hover:text-gray-500">
-          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+        <span className="inline-flex items-center justify-center text-faint hover:text-primary">
+          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <circle cx="9" cy="5" r="1.5" />
             <circle cx="15" cy="5" r="1.5" />
             <circle cx="9" cy="12" r="1.5" />
@@ -73,7 +73,7 @@ function MealRow({
       {/* Group */}
       <td className="w-36">
         <select
-          className={`${inputCls} ${isEmpty ? 'text-gray-400 italic' : 'text-gray-800 font-medium'}`}
+          className={`${inputCls} ${isEmpty ? 'text-faint italic' : 'font-medium'}`}
           value={item.group || ''}
           onChange={(e) => onUpdate(mealKey, item.id, 'group', e.target.value)}
           aria-label="Food group"
@@ -91,21 +91,23 @@ function MealRow({
       {/* Exchange count */}
       <td className="w-14 text-center">
         {isEmpty ? (
-          <span className="text-xs text-gray-300">—</span>
+          <span className="text-xs text-faint">—</span>
         ) : (
           <input
             type="number"
             min="0"
             max={EXCHANGE_MAX}
-            step="0.5"
+            step="1"
             value={item.n ?? 1}
             onChange={(e) => onUpdate(mealKey, item.id, 'n', e.target.value)}
             onBlur={(e) => {
               const v = parseFloat(e.target.value);
-              const capped = Number.isFinite(v) && v >= 0 ? Math.min(v, EXCHANGE_MAX) : 1;
-              if (capped !== item.n) onUpdate(mealKey, item.id, 'n', String(capped));
+              const snapped = Number.isFinite(v) && v >= 0
+                ? Math.min(EXCHANGE_MAX, Math.round(v))
+                : 1;
+              if (snapped !== item.n) onUpdate(mealKey, item.id, 'n', String(snapped));
             }}
-            className="w-full text-center text-xs font-semibold border-0 bg-transparent py-2 px-1 focus:outline-none focus:ring-1 focus:ring-teal-500 rounded"
+            className="w-full text-center text-xs font-semibold border-0 bg-transparent py-2 px-1 focus:outline-none focus:ring-1 focus:ring-primary rounded"
             aria-label="Exchange count"
             tabIndex={isDragging ? -1 : 0}
           />
@@ -115,7 +117,7 @@ function MealRow({
       {/* Food item */}
       <td className="min-w-0">
         {isEmpty ? (
-          <span className="text-xs text-gray-300 px-1">—</span>
+          <span className="text-xs text-faint px-1">—</span>
         ) : (
           <select
             className={inputCls}
@@ -134,27 +136,27 @@ function MealRow({
         )}
       </td>
 
-      {/* Measure (now comes directly from the food) */}
+      {/* Measure */}
       <td className="w-28">
         {isEmpty ? (
-          <span className="text-xs text-gray-300 px-1">—</span>
+          <span className="text-xs text-faint px-1">—</span>
         ) : (
-          <span className="text-xs text-gray-600 px-1.5">
+          <span className="text-xs text-muted px-1.5">
             {selectedFood?.measure || '—'}
           </span>
         )}
       </td>
 
-      {/* Remove button */}
+      {/* Remove */}
       <td className="w-8 text-center">
         <button
           type="button"
           onClick={() => onRemove(mealKey, item.id)}
-          className="p-1.5 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+          className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-950/40 text-faint hover:text-red-500 transition-colors cursor-pointer"
           aria-label={`Remove ${GROUP_LABELS[group] || 'row'}`}
           tabIndex={isDragging ? -1 : 0}
         >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -224,14 +226,14 @@ function MealSection({
   const activeCount = rows.filter((r) => r.group).length;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
+    <div className="rounded-xl border border-border bg-surface overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-2.5 bg-primary">
         <div className="flex items-center gap-2">
-          <h4 className="text-xs font-bold text-teal-700 uppercase tracking-wide">
+          <h4 className="text-xs font-bold text-white uppercase tracking-wide m-0">
             {mealLabel}
           </h4>
           {activeCount > 0 && (
-            <span className="text-[10px] font-semibold text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-semibold text-brand-100 bg-white/20 px-1.5 py-0.5 rounded-full">
               {activeCount}
             </span>
           )}
@@ -239,29 +241,29 @@ function MealSection({
         <button
           type="button"
           onClick={() => addMealRow(mealKey)}
-          className="text-[11px] font-semibold text-teal-600 hover:text-teal-800 transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-teal-50"
+          className="text-[11px] font-semibold text-brand-100 hover:text-white transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-white/10"
         >
           + Add
         </button>
       </div>
 
       {rows.length === 0 ? (
-        <div className="py-6 text-center text-gray-400 text-xs">
-          No items yet. Click <span className="font-semibold text-teal-600">+ Add</span> to begin.
+        <div className="py-6 text-center text-faint text-xs">
+          No items yet. Click <span className="font-semibold text-primary">+ Add</span> to begin.
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs" style={{ tableLayout: 'fixed' }}>
+        <div>
+          <table className="meal-table w-full text-xs">
             <colgroup>
-              <col style={{ width: '28px' }} />
-              <col style={{ width: '130px' }} />
-              <col style={{ width: '52px' }} />
               <col />
-              <col style={{ width: '110px' }} />
-              <col style={{ width: '36px' }} />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
             </colgroup>
             <thead>
-              <tr className="text-left text-gray-400 uppercase tracking-wider border-b border-gray-100">
+              <tr className="text-left text-faint uppercase tracking-wider border-b border-border">
                 <th className="py-1.5 px-1" />
                 <th className="py-1.5 px-1 text-[10px] font-semibold">Group</th>
                 <th className="py-1.5 px-1 text-[10px] font-semibold text-center">#</th>
@@ -270,7 +272,7 @@ function MealSection({
                 <th className="py-1.5" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {rows.map((item) => (
                 <MealRow
                   key={item.id}
@@ -294,79 +296,6 @@ function MealSection({
   );
 }
 
-function DistributionComparison({ validation, exchanges }) {
-  const { groups } = validation;
-  const entries = GROUP_KEYS.filter(
-    (g) => (exchanges[g] || 0) > 0 || (groups[g]?.mealTotal || 0) > 0
-  );
-
-  if (entries.length === 0) return null;
-
-  return (
-    <div className="mt-4 rounded-xl border border-gray-200 bg-white overflow-hidden">
-      <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-          Distribution vs Meal Plan
-        </h4>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="text-left text-gray-400 uppercase tracking-wider border-b border-gray-100">
-              <th className="py-2 px-3 text-[10px] font-semibold">Group</th>
-              <th className="py-2 px-3 text-[10px] font-semibold text-center">
-                Distribution
-              </th>
-              <th className="py-2 px-3 text-[10px] font-semibold text-center">
-                Meal Plan
-              </th>
-              <th className="py-2 px-3 text-[10px] font-semibold text-center">
-                Diff
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {entries.map((g) => {
-              const { exchangeTotal, mealTotal, over } = groups[g];
-              const diff = mealTotal - exchangeTotal;
-
-              return (
-                <tr key={g} className={over ? 'bg-red-50' : ''}>
-                  <td className="py-2 px-3 font-medium text-gray-700">
-                    {GROUP_LABELS[g]}
-                  </td>
-                  <td className="py-2 px-3 text-center text-gray-500">
-                    {exchangeTotal}
-                  </td>
-                  <td className="py-2 px-3 text-center font-semibold text-gray-800">
-                    {mealTotal}
-                  </td>
-                  <td className="py-2 px-3 text-center">
-                    <span
-                      className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                        diff === 0
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : diff > 0
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}
-                    >
-                      {diff > 0 ? '+' : ''}
-                      {diff}
-                      {diff > 0 && ' over'}
-                      {diff < 0 && ' under'}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 export default function MealPlan({
   mealPlan,
   addMealRow,
@@ -383,32 +312,42 @@ export default function MealPlan({
   const isEmpty = Object.values(mealPlan).every((rows) => rows.length === 0);
 
   return (
-    <section className="mt-8">
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <div>
-          <h2 className="text-lg font-bold text-gray-800">One-Day Meal Plan</h2>
-          <p className="text-sm text-gray-500 m-0">
-            {isEmpty
-              ? 'Fill in patient info and exchanges above, then generate a meal plan.'
-              : 'Drag rows to reorder. Edit # to change exchange count per row.'}
-          </p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+        <p className="text-sm text-muted m-0">
+          {isEmpty
+            ? 'Enter exchanges in step 3, then generate a meal plan.'
+            : 'Drag rows to reorder. Edit # to change exchange count per row.'}
+        </p>
 
         <div className="flex items-center gap-3">
           {hasExchanges && (
             <button
               type="button"
               onClick={generatePlan}
-              className="btn-primary text-sm cursor-pointer"
+              className="btn btn-soft text-sm cursor-pointer"
+              title="Auto-distribute exchanges across the five meals"
             >
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                <path d="M20 3v4" />
+                <path d="M22 5h-4" />
+              </svg>
               Generate Plan
             </button>
           )}
           {!isEmpty && (
             <span
-              className={`status-badge ${
-                mealPlanValidation.allValid ? 'status-normal' : 'status-warning'
-              }`}
+              className={`badge ${mealPlanValidation.allValid ? 'badge-normal' : 'badge-warning'}`}
             >
               {mealPlanValidation.allValid ? 'Within limits' : 'Over limit'}
             </span>
@@ -416,7 +355,7 @@ export default function MealPlan({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-4">
         {MEAL_PERIODS.map(({ key, label }) => (
           <MealSection
             key={key}
@@ -431,11 +370,6 @@ export default function MealPlan({
           />
         ))}
       </div>
-
-      <DistributionComparison
-        validation={mealPlanValidation}
-        exchanges={exchanges}
-      />
-    </section>
+    </div>
   );
 }

@@ -9,15 +9,12 @@ describe('App integration', () => {
     expect(screen.getByText('FEL Exchange Calculator')).toBeInTheDocument();
   });
 
-  it('renders navigation links', () => {
+  it('renders stepper navigation to all steps', () => {
     render(<App />);
-    expect(screen.getByRole('link', { name: 'Assessment' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Exchanges' })).toBeInTheDocument();
-  });
-
-  it('renders patient panel trigger', () => {
-    render(<App />);
-    expect(screen.getAllByLabelText('Open patient information').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByRole('button', { name: 'Step 1: Patient' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Step 2: Assessment' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Step 3: Exchanges' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Step 4: Meal Plan' })).toBeInTheDocument();
   });
 
   it('renders skip link for accessibility', () => {
@@ -27,16 +24,26 @@ describe('App integration', () => {
 
   it('renders footer', () => {
     render(<App />);
-    expect(screen.getByText(/References: DOST-FNRI/)).toBeInTheDocument();
+    expect(screen.getByText(/DOST-FNRI Food Exchange Lists/)).toBeInTheDocument();
   });
 
   it('shows the print button', () => {
     render(<App />);
-    expect(screen.getByText('Print Report')).toBeInTheDocument();
+    expect(screen.getByText('Print')).toBeInTheDocument();
   });
 
   it('shows meal plan section', () => {
     render(<App />);
-    expect(screen.getByText('One-Day Meal Plan')).toBeInTheDocument();
+    expect(screen.getAllByText('One-Day Meal Plan').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders patient information section', () => {
+    render(<App />);
+    expect(screen.getAllByText('Patient Information').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders assessment section', () => {
+    render(<App />);
+    expect(screen.getAllByText('Energy Assessment').length).toBeGreaterThanOrEqual(1);
   });
 });

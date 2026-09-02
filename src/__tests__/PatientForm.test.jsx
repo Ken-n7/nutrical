@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PatientForm from '../components/PatientForm';
 
@@ -56,14 +56,9 @@ describe('PatientForm', () => {
     expect(screen.getByLabelText(/Weight/)).toHaveValue(150);
   });
 
-  it('renders the Calculate button', () => {
+  it('shows helper text for patient name', () => {
     renderPatientForm();
-    expect(screen.getByRole('button', { name: /Calculate Prescription/ })).toBeInTheDocument();
-  });
-
-  it('renders fieldset with Patient Information legend', () => {
-    renderPatientForm();
-    expect(screen.getByText('Patient Information')).toBeInTheDocument();
+    expect(screen.getByText('Optional — for identification purposes')).toBeInTheDocument();
   });
 
   it('shows help text for weight', () => {
@@ -153,15 +148,6 @@ describe('PatientForm', () => {
     it('does not show error when error prop is null', () => {
       renderPatientForm({ error: null });
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('calculate button', () => {
-    it('calls onCompute when clicked', async () => {
-      const user = userEvent.setup();
-      const { onCompute } = renderPatientForm();
-      await user.click(screen.getByRole('button', { name: /Calculate Prescription/ }));
-      expect(onCompute).toHaveBeenCalledTimes(1);
     });
   });
 

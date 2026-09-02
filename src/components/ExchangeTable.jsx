@@ -1,7 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { fmt1, fmtInt, fmtValue } from '../hooks/useNutriCal';
 
 const EXCHANGE_MAX = 20;
+const DEFAULT_OPEN = { basic: true, rice: true, meat: true, fat: true };
 
 function ExchangeInput({ value, onChange, label }) {
   const handleBlur = useCallback(
@@ -10,8 +11,9 @@ function ExchangeInput({ value, onChange, label }) {
       const num = Number(val);
       if (val === '' || num < 0 || !Number.isFinite(num)) {
         onChange({ target: { value: '0' } });
-      } else if (num > EXCHANGE_MAX) {
-        onChange({ target: { value: String(EXCHANGE_MAX) } });
+      } else {
+        const snapped = Math.min(EXCHANGE_MAX, Math.round(num) || 0);
+        if (snapped !== num) onChange({ target: { value: String(snapped) } });
       }
     },
     [onChange]
@@ -24,16 +26,12 @@ function ExchangeInput({ value, onChange, label }) {
       type="number"
       min="0"
       max={EXCHANGE_MAX}
-      step="any"
-      inputMode="decimal"
+      step="1"
+      inputMode="numeric"
       value={value === 0 ? '' : value}
       onChange={onChange}
       onBlur={handleBlur}
-      className={`input-exchange ${
-        isHigh
-          ? 'border-amber-500 focus:border-amber-600 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.15)]'
-          : ''
-      }`}
+      className={`exchange-input ${isHigh ? 'exchange-input--over' : ''}`}
       aria-label={label}
       aria-invalid={isHigh}
       placeholder="0"
@@ -41,22 +39,14 @@ function ExchangeInput({ value, onChange, label }) {
   );
 }
 
-function PrescriptionBadge({ label, value }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-teal-200 rounded text-sm font-semibold text-teal-700">
-      {label} <strong className="text-gray-900">{value}</strong>
-    </span>
-  );
-}
-
 function DiffTag({ diff, unit = 'g' }) {
   const abs = Math.abs(diff);
   const sign = diff > 0 ? '+' : '';
-  const color =
-    abs <= 5 ? 'text-emerald-600' : abs <= 15 ? 'text-amber-600' : 'text-red-600';
+  const cls =
+    abs <= 5 ? 'chip chip-good' : abs <= 15 ? 'chip chip-warn' : 'chip chip-bad';
 
   return (
-    <span className={`text-xs font-semibold ${color}`}>
+    <span className={`chip ${cls}`}>
       {sign}
       {fmt1(diff)} {unit}
     </span>
@@ -67,60 +57,62 @@ function RemainingHint({ remaining, perExchange, label }) {
   if (remaining <= 0) return null;
   const needed = remaining / perExchange;
   return (
-    <span className="text-xs text-teal-600 font-medium">
+    <span className="text-xs text-primary font-medium">
       Remaining {fmt1(remaining)} g → ≈ {fmt1(needed)} {label}
     </span>
   );
 }
 
-function CompareItem({ label, value, diff }) {
+function TableGroup({ title, open, onToggle, children }) {
   return (
-    <div className="border-2 border-gray-200 bg-gray-50 rounded p-3">
-      <span className="block text-xs font-bold text-gray-500 uppercase tracking-wide">
-        {label}
-      </span>
-      <strong className="block text-sm font-bold mt-1 text-gray-900">{value}</strong>
-      <small className="block text-xs text-gray-500 mt-1">{diff}</small>
-    </div>
-  );
-}
-
-function SectionHeader({ label }) {
-  return (
-    <tr className="section-header">
-      <td
-        colSpan={6}
-        className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50/80 border-b border-teal-200"
+    <div className="fel-group">
+      <div className="fel-section">
+        <button
+          type="button"
+          className="fel-section-toggle"
+          aria-expanded={open}
+          onClick={onToggle}
+        >
+          {title}
+          <svg
+            className="caret w-3 h-3"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+      <div
+        className="fel-collapse"
+        style={{ gridTemplateRows: open ? '1fr' : '0fr' }}
       >
-        {label}
-      </td>
-    </tr>
+        <div className="fel-collapse-inner">{children}</div>
+      </div>
+    </div>
   );
 }
 
 function TableRow({ index, name, count, data, onChange, sub }) {
   return (
-    <tr className={sub ? 'subgroup-row' : ''}>
-      <td className={sub ? 'pl-8' : ''}>
+    <div className={`fel-row fel-data-row ${sub ? 'subgroup-row' : ''}`}>
+      <div className={`fel-td ${sub ? 'pl-2 md:pl-8' : ''}`}>
         {index && (
-          <span className="inline-block w-8 text-xs font-bold text-gray-400">
-            {index}
-          </span>
+          <span className="inline-block w-8 max-md:w-5 text-xs font-bold text-faint">{index}</span>
         )}
-        <span className="font-medium text-gray-700">{name}</span>
-      </td>
-      <td className="text-center">
-        <ExchangeInput
-          value={count}
-          onChange={onChange}
-          label={`${name} exchanges`}
-        />
-      </td>
-      <td className="text-right">{fmtValue(data?.cho ?? 0)}</td>
-      <td className="text-right">{fmtValue(data?.protein ?? 0)}</td>
-      <td className="text-right">{fmtValue(data?.fat ?? 0)}</td>
-      <td className="text-right">{fmtValue(data?.kcal ?? 0)}</td>
-    </tr>
+        <span className="font-medium">{name}</span>
+      </div>
+      <div className="fel-td text-center">
+        <ExchangeInput value={count} onChange={onChange} label={`${name} exchanges`} />
+      </div>
+      <div className="fel-td text-right">{fmtValue(data?.cho ?? 0)}</div>
+      <div className="fel-td text-right">{fmtValue(data?.protein ?? 0)}</div>
+      <div className="fel-td text-right">{fmtValue(data?.fat ?? 0)}</div>
+      <div className="fel-td text-right">{fmtValue(data?.kcal ?? 0)}</div>
+    </div>
   );
 }
 
@@ -129,10 +121,14 @@ export default function ExchangeTable({
   updateExchange,
   exchangeData,
   assessment,
+  suggestExchanges,
 }) {
+  const [open, setOpen] = useState({ ...DEFAULT_OPEN });
+  const toggleSection = (key) => setOpen((o) => ({ ...o, [key]: !o[key] }));
+
   if (!exchangeData || !assessment) return null;
 
-  const { targetCho, targetProtein, targetFat, ter } = assessment;
+  const { targetCho, targetProtein, targetFat } = assessment;
   const {
     rows,
     riceN,
@@ -153,10 +149,7 @@ export default function ExchangeTable({
     totalKcal,
     totalN,
     choDiff,
-    proteinDiff,
     fatDiff,
-    kcalDiff,
-    within,
   } = exchangeData;
 
   const getRow = (key) => rows.find((r) => r.key === key) || {};
@@ -169,64 +162,61 @@ export default function ExchangeTable({
   const remainingFat = targetFat - fatSoFarBeforeFatExchange;
 
   return (
-    <section id="prescription" className="scroll-mt-20 mb-8">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-3">
-        <div>
-          <h2 className="text-lg font-bold text-gray-800">
-            FEL Exchange Distribution
-          </h2>
-          <p className="text-sm text-gray-500 m-0">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0">
+          <p className="text-sm text-muted m-0">
             Enter the number of exchanges for each food group
           </p>
+          <p className="text-xs text-muted m-0 mt-0.5">
+            Based on FEL method: veg/fruit/milk/sugar → rice → meat → fat
+          </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-          <span className="w-2 h-2 rounded-full bg-emerald-600" />
-          Nutritionist Input
+        <div className="flex items-center gap-3 flex-wrap shrink-0">
+          <button
+            type="button"
+            onClick={suggestExchanges}
+            className="btn btn-soft text-sm cursor-pointer"
+            title="Auto-fill exchanges using the official FEL method"
+          >
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+              <path d="M20 3v4" />
+              <path d="M22 5h-4" />
+            </svg>
+            Suggest from targets
+          </button>
+          <span className="badge badge-info">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
+            Nutritionist Input
+          </span>
         </div>
-      </div>
-
-      {/* Current Prescription */}
-      <div className="flex flex-wrap items-center gap-2 bg-teal-50 border-2 border-teal-200 rounded px-4 py-3 mb-4">
-        <span className="text-xs font-bold text-teal-700 mr-auto uppercase tracking-wide">
-          Current Prescription
-        </span>
-        <PrescriptionBadge label="CHO" value={`${fmt1(targetCho)} g`} />
-        <PrescriptionBadge label="PRO" value={`${fmt1(targetProtein)} g`} />
-        <PrescriptionBadge label="Fat" value={`${fmt1(targetFat)} g`} />
-        <PrescriptionBadge label="TER" value={`${fmtInt(ter)} kcal`} />
       </div>
 
       {/* Main Table */}
-      <div className="card-traditional overflow-hidden">
+      <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="table-traditional fel-table min-w-[560px]">
-            <thead>
-              <tr>
-                <th scope="col" className="w-[160px]">
-                  Food Group
-                </th>
-                <th scope="col" className="w-[90px] text-center">
-                  Exchange
-                </th>
-                <th scope="col" className="text-right">
-                  CHO (g)
-                </th>
-                <th scope="col" className="text-right">
-                  PRO (g)
-                </th>
-                <th scope="col" className="text-right">
-                  Fat (g)
-                </th>
-                <th scope="col" className="text-right">
-                  kcal
-                </th>
-              </tr>
-            </thead>
+          <div className="fel-table min-w-0">
+            <div className="fel-row fel-head-row">
+              <div className="fel-th">Food Group</div>
+              <div className="fel-th text-center">Exchange</div>
+              <div className="fel-th text-right">CHO (g)</div>
+              <div className="fel-th text-right">PRO (g)</div>
+              <div className="fel-th text-right">Fat (g)</div>
+              <div className="fel-th text-right">kcal</div>
+            </div>
 
-            <tbody>
-              {/* ── Basic Foods ── */}
-              <SectionHeader label="Basic Foods" />
+            <TableGroup title="Basic Foods" open={open.basic} onToggle={() => toggleSection('basic')}>
               <TableRow
                 index="I"
                 name="Vegetable"
@@ -271,32 +261,23 @@ export default function ExchangeTable({
                 onChange={(e) => updateExchange('sugar', e.target.value)}
               />
 
-              {/* CHO Subtotal + Remaining */}
-              <tr className="subtotal-row">
-                <td colSpan={2} className="font-bold text-gray-700">
-                  CHO Subtotal
-                </td>
-                <td className="text-right font-bold">{fmtValue(basicCho)}</td>
-                <td colSpan={3} />
-              </tr>
-              <tr className="diff-row">
-                <td colSpan={6} className="text-right py-1.5">
-                  <div className="flex items-center justify-end gap-3">
-                    <RemainingHint
-                      remaining={remainingChoAfterBasic}
-                      perExchange={23}
-                      label="Rice"
-                    />
-                    <span className="text-xs text-gray-500">
-                      Target {fmt1(targetCho)} g ·{' '}
-                    </span>
-                    <DiffTag diff={choDiff} />
-                  </div>
-                </td>
-              </tr>
+              <div className="fel-row subtotal-row">
+                <div className="fel-td font-bold col-span-2">CHO Subtotal</div>
+                <div className="fel-td text-right font-bold">{fmtValue(basicCho)}</div>
+                <div className="fel-td col-span-3" />
+              </div>
+            </TableGroup>
+            <div className="fel-row diff-row">
+              <div className="fel-td col-span-6 text-right">
+                <div className="flex items-center justify-end gap-3 flex-wrap">
+                  <RemainingHint remaining={remainingChoAfterBasic} perExchange={23} label="Rice" />
+                  <span className="text-xs text-muted">Target {fmt1(targetCho)} g</span>
+                  <DiffTag diff={choDiff} />
+                </div>
+              </div>
+            </div>
 
-              {/* ── Rice ── */}
-              <SectionHeader label="Rice / Starchy" />
+            <TableGroup title="Rice / Starchy" open={open.rice} onToggle={() => toggleSection('rice')}>
               <TableRow
                 index="IV"
                 name="Rice A (Low-Protein)"
@@ -318,44 +299,32 @@ export default function ExchangeTable({
                 onChange={(e) => updateExchange('riceC', e.target.value)}
                 sub
               />
+              <div className="fel-row subtotal-row">
+                <div className="fel-td font-bold">Rice Subtotal</div>
+                <div className="fel-td text-right font-bold">{fmtValue(riceN)}</div>
+                <div className="fel-td text-right font-bold">{fmtValue(riceCho)}</div>
+                <div className="fel-td text-right font-bold">{fmtValue(riceProtein)}</div>
+                <div className="fel-td text-right font-bold">{fmtValue(riceFat)}</div>
+                <div className="fel-td text-right font-bold">{fmtValue(riceKcal)}</div>
+              </div>
 
-              <tr className="subtotal-row">
-                <td className="font-bold text-gray-700">Rice Subtotal</td>
-                <td className="text-right font-bold">{fmtValue(riceN)}</td>
-                <td className="text-right font-bold">{fmtValue(riceCho)}</td>
-                <td className="text-right font-bold">{fmtValue(riceProtein)}</td>
-                <td className="text-right font-bold">{fmtValue(riceFat)}</td>
-                <td className="text-right font-bold">{fmtValue(riceKcal)}</td>
-              </tr>
+              <div className="fel-row subtotal-row">
+                <div className="fel-td font-bold col-span-2">Protein so far</div>
+                <div className="fel-td" />
+                <div className="fel-td text-right font-bold">{fmtValue(proteinSoFarAfterRice)}</div>
+                <div className="fel-td col-span-2" />
+              </div>
+            </TableGroup>
+            <div className="fel-row diff-row">
+              <div className="fel-td col-span-6 text-right">
+                <div className="flex items-center justify-end gap-3 flex-wrap">
+                  <RemainingHint remaining={remainingProteinAfterRice} perExchange={8} label="Meat" />
+                  <span className="text-xs text-muted">Target {fmt1(targetProtein)} g</span>
+                </div>
+              </div>
+            </div>
 
-              {/* Protein so far */}
-              <tr className="subtotal-row">
-                <td colSpan={2} className="font-bold text-gray-700">
-                  Protein so far
-                </td>
-                <td />
-                <td className="text-right font-bold">
-                  {fmtValue(proteinSoFarAfterRice)}
-                </td>
-                <td colSpan={2} />
-              </tr>
-              <tr className="diff-row">
-                <td colSpan={6} className="text-right py-1.5">
-                  <div className="flex items-center justify-end gap-3">
-                    <RemainingHint
-                      remaining={remainingProteinAfterRice}
-                      perExchange={8}
-                      label="Meat"
-                    />
-                    <span className="text-xs text-gray-500">
-                      Target {fmt1(targetProtein)} g
-                    </span>
-                  </div>
-                </td>
-              </tr>
-
-              {/* ── Meat ── */}
-              <SectionHeader label="Meat / Fish" />
+            <TableGroup title="Meat / Fish" open={open.meat} onToggle={() => toggleSection('meat')}>
               <TableRow
                 index="V"
                 name="Low-Fat Meat"
@@ -377,18 +346,26 @@ export default function ExchangeTable({
                 onChange={(e) => updateExchange('meatHigh', e.target.value)}
                 sub
               />
+              <div className="fel-row subtotal-row">
+                <div className="fel-td font-bold">Meat Subtotal</div>
+                <div className="fel-td text-right font-bold">{fmtValue(meatN)}</div>
+                <div className="fel-td text-right">0</div>
+                <div className="fel-td text-right font-bold">{fmtValue(meatProtein)}</div>
+                <div className="fel-td text-right font-bold">{fmtValue(meatFat)}</div>
+                <div className="fel-td text-right font-bold">{fmtValue(meatKcal)}</div>
+              </div>
+            </TableGroup>
+            <div className="fel-row diff-row">
+              <div className="fel-td col-span-6 text-right">
+                <div className="flex items-center justify-end gap-3 flex-wrap">
+                  <RemainingHint remaining={remainingFat} perExchange={5} label="Fat" />
+                  <span className="text-xs text-muted">Target {fmt1(targetFat)} g</span>
+                  <DiffTag diff={fatDiff} />
+                </div>
+              </div>
+            </div>
 
-              <tr className="subtotal-row">
-                <td className="font-bold text-gray-700">Meat Subtotal</td>
-                <td className="text-right font-bold">{fmtValue(meatN)}</td>
-                <td className="text-right">0</td>
-                <td className="text-right font-bold">{fmtValue(meatProtein)}</td>
-                <td className="text-right font-bold">{fmtValue(meatFat)}</td>
-                <td className="text-right font-bold">{fmtValue(meatKcal)}</td>
-              </tr>
-
-              {/* ── Fat ── */}
-              <SectionHeader label="Fat" />
+            <TableGroup title="Fat" open={open.fat} onToggle={() => toggleSection('fat')}>
               <TableRow
                 index="VI"
                 name="Fat"
@@ -396,100 +373,31 @@ export default function ExchangeTable({
                 data={getRow('fat')}
                 onChange={(e) => updateExchange('fat', e.target.value)}
               />
-
-              <tr className="subtotal-row">
-                <td colSpan={2} className="font-bold text-gray-700">
+              <div className="fel-row subtotal-row">
+                <div className="fel-td font-bold col-span-2">
                   Fat so far (before Fat exchanges)
-                </td>
-                <td colSpan={2} />
-                <td className="text-right font-bold">
-                  {fmtValue(fatSoFarBeforeFatExchange)}
-                </td>
-                <td />
-              </tr>
-              <tr className="diff-row">
-                <td colSpan={6} className="text-right py-1.5">
-                  <div className="flex items-center justify-end gap-3">
-                    <RemainingHint
-                      remaining={remainingFat}
-                      perExchange={5}
-                      label="Fat"
-                    />
-                    <span className="text-xs text-gray-500">
-                      Target {fmt1(targetFat)} g ·{' '}
-                    </span>
-                    <DiffTag diff={fatDiff} />
-                  </div>
-                </td>
-              </tr>
+                </div>
+                <div className="fel-td col-span-2" />
+                <div className="fel-td text-right font-bold">{fmtValue(fatSoFarBeforeFatExchange)}</div>
+                <div className="fel-td" />
+              </div>
+            </TableGroup>
 
-              {/* ── Grand Total ── */}
-              <tr className="total-row">
-                <td className="font-bold">TOTAL</td>
-                <td className="text-right font-bold">{fmtValue(totalN)}</td>
-                <td className="text-right font-bold">{fmtValue(totalCho)}</td>
-                <td className="text-right font-bold">{fmtValue(totalProtein)}</td>
-                <td className="text-right font-bold">{fmtValue(totalFat)}</td>
-                <td className="text-right font-bold">{fmtInt(totalKcal)}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p className="text-xs text-gray-400 px-4 py-2 border-t-2 border-gray-100 m-0">
-          Fractional exchanges accepted (e.g. 2.5). Maximum {EXCHANGE_MAX} per
-          group.
-        </p>
-      </div>
-
-      {/* Final Comparison */}
-      <div className="card-traditional p-5 mt-4" aria-live="polite">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <div>
-            <h3 className="text-base font-bold text-gray-800 m-0">
-              Prescription vs Entered Exchanges
-            </h3>
-            <p className="text-sm text-gray-500 m-0 mt-1">
-              Final comparison against targets
-            </p>
+            <div className="fel-row total-row">
+              <div className="fel-td font-bold">TOTAL</div>
+              <div className="fel-td text-right font-bold">{fmtValue(totalN)}</div>
+              <div className="fel-td text-right font-bold">{fmtValue(totalCho)}</div>
+              <div className="fel-td text-right font-bold">{fmtValue(totalProtein)}</div>
+              <div className="fel-td text-right font-bold">{fmtValue(totalFat)}</div>
+              <div className="fel-td text-right font-bold">{fmtInt(totalKcal)}</div>
+            </div>
           </div>
-          <span
-            className={`status-badge ${
-              within ? 'status-normal' : 'status-warning'
-            }`}
-          >
-            {within ? 'Within tolerance' : 'Review needed'}
-          </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <CompareItem
-            label="CHO"
-            value={`${fmt1(totalCho)} / ${fmt1(targetCho)} g`}
-            diff={`${choDiff >= 0 ? '+' : ''}${fmt1(choDiff)} g`}
-          />
-          <CompareItem
-            label="PRO"
-            value={`${fmt1(totalProtein)} / ${fmt1(targetProtein)} g`}
-            diff={`${proteinDiff >= 0 ? '+' : ''}${fmt1(proteinDiff)} g`}
-          />
-          <CompareItem
-            label="Fat"
-            value={`${fmt1(totalFat)} / ${fmt1(targetFat)} g`}
-            diff={`${fatDiff >= 0 ? '+' : ''}${fmt1(fatDiff)} g`}
-          />
-          <CompareItem
-            label="Energy"
-            value={`${fmtInt(totalKcal)} / ${fmtInt(ter)} kcal`}
-            diff={`${kcalDiff >= 0 ? '+' : ''}${fmtInt(kcalDiff)} kcal`}
-          />
-        </div>
-
-        <p className="text-xs text-gray-500 mt-4 mb-0">
-          NutriCal shows the difference but does not automatically adjust the
-          distribution. The nutritionist remains in full control.
+        <p className="text-xs text-muted px-4 py-2 border-t border-border m-0">
+          Values are rounded to whole exchanges. Maximum {EXCHANGE_MAX} per group.
         </p>
       </div>
-    </section>
+    </div>
   );
 }

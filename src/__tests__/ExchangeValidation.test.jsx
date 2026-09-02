@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { useNutriCal } from '../hooks/useNutriCal';
 import ExchangeTable from '../components/ExchangeTable';
 
@@ -84,8 +83,8 @@ describe('ExchangeInput max attribute', () => {
   });
 });
 
-describe('Error display', () => {
-  it('shows error alert when error prop is set', () => {
+describe('Exchange table render', () => {
+  it('renders the exchange table with comparison moved to sidebar', () => {
     render(
       <ExchangeTable
         exchanges={{ veg: 3, fruit: 5, milkWhole: 0, milk: 1, milkSkim: 0, sugar: 3, riceA: 1, riceB: 5, riceC: 1, meatLow: 2, meatMed: 2, meatHigh: 0, fat: 2 }}
@@ -94,19 +93,8 @@ describe('Error display', () => {
         assessment={defaultAssessment}
       />
     );
-    expect(screen.getByText('Review needed')).toBeInTheDocument();
-  });
-
-  it('shows Within tolerance badge when within range', () => {
-    const withinData = { ...defaultExchangeData, within: true };
-    render(
-      <ExchangeTable
-        exchanges={{ veg: 3, fruit: 5, milkWhole: 0, milk: 1, milkSkim: 0, sugar: 3, riceA: 1, riceB: 5, riceC: 1, meatLow: 2, meatMed: 2, meatHigh: 0, fat: 2 }}
-        updateExchange={vi.fn()}
-        exchangeData={withinData}
-        assessment={defaultAssessment}
-      />
-    );
-    expect(screen.getByText('Within tolerance')).toBeInTheDocument();
+    expect(screen.getByText('Food Group')).toBeInTheDocument();
+    expect(screen.queryByText('Review needed')).not.toBeInTheDocument();
+    expect(screen.queryByText('Within tolerance')).not.toBeInTheDocument();
   });
 });

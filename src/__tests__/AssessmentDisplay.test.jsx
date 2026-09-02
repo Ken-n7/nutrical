@@ -23,14 +23,14 @@ describe('AssessmentDisplay', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('renders the Energy Assessment heading', () => {
+  it('renders the Total Energy Requirement label', () => {
     render(<AssessmentDisplay assessment={mockAssessment} />);
-    expect(screen.getByText('Energy Assessment')).toBeInTheDocument();
+    expect(screen.getByText('Total Energy Requirement')).toBeInTheDocument();
   });
 
   it('displays BMI value', () => {
     render(<AssessmentDisplay assessment={mockAssessment} />);
-    expect(screen.getByText('28.3')).toBeInTheDocument();
+    expect(screen.getByText('28')).toBeInTheDocument();
   });
 
   it('displays BMI classification badge', () => {
@@ -40,7 +40,7 @@ describe('AssessmentDisplay', () => {
 
   it('displays DBW value in kg', () => {
     render(<AssessmentDisplay assessment={mockAssessment} />);
-    expect(screen.getByText('47.7 kg')).toBeInTheDocument();
+    expect(screen.getByText('48 kg')).toBeInTheDocument();
   });
 
   it('displays DBW formula', () => {
@@ -61,7 +61,7 @@ describe('AssessmentDisplay', () => {
 
   it('displays TER formula', () => {
     render(<AssessmentDisplay assessment={mockAssessment} />);
-    expect(screen.getByText(/47\.7 × 35/)).toBeInTheDocument();
+    expect(screen.getByText(/48 × 35/)).toBeInTheDocument();
   });
 
   describe('macronutrient targets', () => {
@@ -73,21 +73,21 @@ describe('AssessmentDisplay', () => {
     it('displays CHO target', () => {
       render(<AssessmentDisplay assessment={mockAssessment} />);
       expect(screen.getByText('Carbohydrates')).toBeInTheDocument();
-      expect(screen.getByText('271.4 g')).toBeInTheDocument();
+      expect(screen.getByText('271 g')).toBeInTheDocument();
       expect(screen.getByText(/65%/)).toBeInTheDocument();
     });
 
     it('displays Protein target', () => {
       render(<AssessmentDisplay assessment={mockAssessment} />);
       expect(screen.getByText('Protein')).toBeInTheDocument();
-      expect(screen.getByText('62.6 g')).toBeInTheDocument();
+      expect(screen.getByText('63 g')).toBeInTheDocument();
       expect(screen.getByText(/15%/)).toBeInTheDocument();
     });
 
     it('displays Fat target', () => {
       render(<AssessmentDisplay assessment={mockAssessment} />);
       expect(screen.getByText('Fat')).toBeInTheDocument();
-      expect(screen.getByText('37.1 g')).toBeInTheDocument();
+      expect(screen.getByText('37 g')).toBeInTheDocument();
       expect(screen.getByText(/20%/)).toBeInTheDocument();
     });
   });

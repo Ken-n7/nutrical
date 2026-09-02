@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PatientForm from '../components/PatientForm';
 import { useState } from 'react';
@@ -16,7 +16,7 @@ const defaultPatient = {
   distribution: '65,15,20',
 };
 
-function PatientFormWrapper({ initialPatient = defaultPatient, onCompute: onComputeProp, error }) {
+function PatientFormWrapper({ initialPatient = defaultPatient, onCompute: onComputeProp, error, onNext }) {
   const [patient, setPatient] = useState({ ...initialPatient });
   const updatePatient = (field, value) => {
     setPatient((prev) => ({ ...prev, [field]: value }));
@@ -27,6 +27,7 @@ function PatientFormWrapper({ initialPatient = defaultPatient, onCompute: onComp
       updatePatient={updatePatient}
       error={error}
       onCompute={onComputeProp}
+      onNext={onNext}
     />
   );
 }
@@ -155,7 +156,7 @@ describe('PatientForm validation', () => {
       await user.type(ageInput, '0');
       await user.tab();
       await waitFor(() => {
-        expect(ageInput.className).toContain('border-red-500');
+        expect(ageInput.className).toContain('input-input-error');
       });
     });
 
@@ -187,31 +188,6 @@ describe('PatientForm validation', () => {
       await waitFor(() => {
         expect(screen.queryByText('Must be 1–120 years')).not.toBeInTheDocument();
       });
-    });
-  });
-
-  describe('Calculate button validation', () => {
-    it('validates all fields on Calculate click', async () => {
-      const user = userEvent.setup();
-      const onCompute = vi.fn();
-      render(<PatientFormWrapper onCompute={onCompute} />);
-      await user.click(screen.getByRole('button', { name: /Calculate Prescription/ }));
-      expect(onCompute).toHaveBeenCalled();
-    });
-
-    it('scrolls to results when validation passes', async () => {
-      const user = userEvent.setup();
-      const onCompute = vi.fn();
-      render(<PatientFormWrapper onCompute={onCompute} />);
-      const scrollSpy = vi.fn();
-      const origGetById = document.getElementById.bind(document);
-      document.getElementById = vi.fn((id) => {
-        if (id === 'assessment') return { scrollIntoView: scrollSpy };
-        return origGetById(id);
-      });
-      await user.click(screen.getByRole('button', { name: /Calculate Prescription/ }));
-      expect(scrollSpy).toHaveBeenCalled();
-      document.getElementById = origGetById;
     });
   });
 });

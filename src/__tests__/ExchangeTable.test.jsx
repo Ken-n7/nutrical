@@ -67,22 +67,10 @@ describe('ExchangeTable', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('renders the FEL Exchange Distribution heading', () => {
+  it('renders the exchange table with food groups', () => {
     renderExchangeTable();
-    expect(screen.getByText('FEL Exchange Distribution')).toBeInTheDocument();
-  });
-
-  describe('prescription badges', () => {
-    it('displays current prescription targets', () => {
-      renderExchangeTable();
-      expect(screen.getByText('Current Prescription')).toBeInTheDocument();
-      expect(screen.getAllByText('CHO').length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText('271.4 g')).toBeInTheDocument();
-      expect(screen.getAllByText('PRO').length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText('62.6 g')).toBeInTheDocument();
-      expect(screen.getByText('TER')).toBeInTheDocument();
-      expect(screen.getByText('1,670 kcal')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Food Group')).toBeInTheDocument();
+    expect(screen.getByText('Vegetable')).toBeInTheDocument();
   });
 
   describe('exchange table rows', () => {
@@ -157,45 +145,24 @@ describe('ExchangeTable', () => {
   describe('target differences', () => {
     it('displays CHO target', () => {
       renderExchangeTable();
-      expect(screen.getByText(/Target 271.4 g/)).toBeInTheDocument();
+      expect(screen.getByText(/Target 271 g/)).toBeInTheDocument();
     });
 
     it('displays PRO target', () => {
       renderExchangeTable();
-      expect(screen.getByText(/Target 62.6 g/)).toBeInTheDocument();
+      expect(screen.getByText(/Target 63 g/)).toBeInTheDocument();
     });
 
     it('displays Fat target', () => {
       renderExchangeTable();
-      expect(screen.getByText(/Target 37.1 g/)).toBeInTheDocument();
+      expect(screen.getByText(/Target 37 g/)).toBeInTheDocument();
     });
   });
 
-  describe('comparison review', () => {
-    it('renders comparison section', () => {
+  describe('comparison review placement', () => {
+    it('does not render the comparison card inside the table', () => {
       renderExchangeTable();
-      expect(screen.getByText('Prescription vs Entered Exchanges')).toBeInTheDocument();
-    });
-
-    it('shows warning badge when outside tolerance', () => {
-      renderExchangeTable();
-      expect(screen.getByText('Review needed')).toBeInTheDocument();
-    });
-
-    it('shows normal badge when within tolerance', () => {
-      const withinData = { ...defaultExchangeData, within: true };
-      renderExchangeTable({ exchangeData: withinData });
-      expect(screen.getByText('Within tolerance')).toBeInTheDocument();
-    });
-
-    it('displays CHO comparison', () => {
-      renderExchangeTable();
-      expect(screen.getByText('247.0 / 271.4 g')).toBeInTheDocument();
-    });
-
-    it('displays Energy comparison', () => {
-      renderExchangeTable();
-      expect(screen.getByText('1,672 / 1,670 kcal')).toBeInTheDocument();
+      expect(screen.queryByText('Prescription vs Entered Exchanges')).not.toBeInTheDocument();
     });
   });
 
@@ -225,12 +192,6 @@ describe('ExchangeTable', () => {
       expect(screen.getByLabelText('Vegetable exchanges')).toBeInTheDocument();
       expect(screen.getByLabelText('Fruit exchanges')).toBeInTheDocument();
       expect(screen.getByLabelText('Low-Fat Milk exchanges')).toBeInTheDocument();
-    });
-
-    it('has aria-live on comparison section', () => {
-      renderExchangeTable();
-      const comparison = screen.getByText('Prescription vs Entered Exchanges').closest('[aria-live]');
-      expect(comparison).toHaveAttribute('aria-live', 'polite');
     });
   });
 });

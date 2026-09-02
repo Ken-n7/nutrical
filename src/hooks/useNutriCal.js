@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
-import { EMPTY_MEAL_PLAN, NEW_ROW_DEFAULTS, GROUP_KEYS, generateMealPlan } from '../data/mealPlanData';
+import { NEW_ROW_DEFAULTS, GROUP_KEYS, generateMealPlan } from '../data/mealPlanData';
 
 // Official FEL 4th Edition values
 const EX = {
@@ -18,6 +18,21 @@ const EX = {
   sugar:     { cho: 5,  protein: 0, fat: 0,  kcal: 20 },
 };
 
+const DEFAULTS = {
+  veg: 3,
+  fruit: 3,
+  milk: 1,
+  milkWhole: 0,
+  milkSkim: 0,
+  sugar: 2,
+};
+
+const roundN = (n) => {
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.round(n);
+};
+const snapExchange = (n) => Math.min(20, roundN(n));
+
 const FACTOR_LABEL = {
   30: 'Lightly active',
   35: 'Moderately active',
@@ -26,12 +41,8 @@ const FACTOR_LABEL = {
 };
 
 export const fmtInt = (n) => Math.round(Number(n) || 0).toLocaleString('en-US');
-export const fmt1 = (n) =>
-  (Math.round((Number(n) || 0) * 10) / 10).toLocaleString('en-US', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-export const fmtValue = (n) => (Number.isInteger(Number(n)) ? fmtInt(n) : fmt1(n));
+export const fmt1 = (n) => fmtInt(n);
+export const fmtValue = (n) => fmtInt(n);
 
 function bmiOf(weightKg, heightCm) {
   const m = heightCm / 100;
@@ -50,7 +61,7 @@ function dbwHamwi(sex, totalInches, frame) {
   const base = sex === 'male' ? 106 : 100;
   const perInch = sex === 'male' ? 6 : 5;
   const baseAdjustedLbs = base + inchesFromFiveFeet * perInch;
-  const frameAdjustedKg = (baseAdjustedLbs / 2.2) * frame;
+  const frameAdjustedKg = Math.round((baseAdjustedLbs / 2.2) * frame);
   const direction = inchesFromFiveFeet >= 0 ? '+' : '−';
   const absInches = Math.abs(inchesFromFiveFeet);
   const formula = `${base} ${direction} (${absInches} × ${perInch}) lb ÷ 2.2${frame !== 1 ? ` × ${frame.toFixed(2)}` : ''}`;
@@ -113,7 +124,8 @@ export function useNutriCal() {
 
   const updateExchange = useCallback((key, value) => {
     const num = parseFloat(value);
-    const capped = Number.isFinite(num) && num >= 0 ? Math.min(num, 20) : 0;
+    const rounded = Number.isFinite(num) && num >= 0 ? Math.round(num) : 0;
+    const capped = Math.min(rounded, 20);
     setExchanges((prev) => ({
       ...prev,
       [key]: capped,
@@ -163,7 +175,8 @@ export function useNutriCal() {
         }
         if (field === 'n') {
           const num = parseFloat(value);
-          const capped = Number.isFinite(num) && num >= 0 ? Math.min(num, 20) : 0;
+          const rounded = Number.isFinite(num) && num >= 0 ? Math.round(num) : 0;
+          const capped = Math.min(rounded, 20);
           return { ...r, n: capped };
         }
         return { ...r, [field]: parseInt(value, 10) };
@@ -202,9 +215,9 @@ export function useNutriCal() {
     const ter = Math.round(terRaw / 10) * 10;
 
     const [choPct, proteinPct, fatPct] = dist;
-    const targetCho = (ter * choPct) / 100 / 4;
-    const targetProtein = (ter * proteinPct) / 100 / 4;
-    const targetFat = (ter * fatPct) / 100 / 9;
+    const targetCho = Math.round((ter * choPct) / 100 / 4);
+    const targetProtein = Math.round((ter * proteinPct) / 100 / 4);
+    const targetFat = Math.round((ter * fatPct) / 100 / 9);
 
     return {
       bmi,
@@ -222,6 +235,69 @@ export function useNutriCal() {
       targetFat,
     };
   }, [patient]);
+
+  const suggestExchanges = useCallback(() => {
+    if (!assessment) return;
+    const { targetCho, targetProtein, targetFat } = assessment;
+
+    // Step 1: fixed/default exchanges
+    const result = {
+      veg: snapExchange(DEFAULTS.veg),
+      fruit: snapExchange(DEFAULTS.fruit),
+      milkWhole: snapExchange(DEFAULTS.milkWhole),
+      milk: snapExchange(DEFAULTS.milk),
+      milkSkim: snapExchange(DEFAULTS.milkSkim),
+      sugar: snapExchange(DEFAULTS.sugar),
+      riceA: 0,
+      riceB: 0,
+      riceC: 0,
+      meatLow: 0,
+      meatMed: 0,
+      meatHigh: 0,
+      fat: 0,
+    };
+
+    // Step 2: CHO partial sum from veg + fruit + milk(s) + sugar
+    const choPartialSum =
+      result.veg * EX.veg.cho +
+      result.fruit * EX.fruit.cho +
+      result.milk * EX.milk.cho +
+      result.milkWhole * EX.milkWhole.cho +
+      result.milkSkim * EX.milkSkim.cho +
+      result.sugar * EX.sugar.cho;
+
+    // Step 3: Rice exchanges
+    const totalRice = Math.max(0, targetCho - choPartialSum) / 23;
+    result.riceB = snapExchange(totalRice);
+
+    // Step 4: Protein partial sum from veg + milk(s) + rice(s)
+    const proteinPartialSum =
+      result.veg * EX.veg.protein +
+      result.milk * EX.milk.protein +
+      result.milkWhole * EX.milkWhole.protein +
+      result.milkSkim * EX.milkSkim.protein +
+      result.riceA * EX.riceA.protein +
+      result.riceB * EX.riceB.protein +
+      result.riceC * EX.riceC.protein;
+
+    // Step 5: Meat exchanges
+    const totalMeat = Math.max(0, targetProtein - proteinPartialSum) / 8;
+    result.meatMed = snapExchange(totalMeat);
+
+    // Step 6: Fat partial sum from milk + meat
+    const fatPartialSum =
+      result.milk * EX.milk.fat +
+      result.milkWhole * EX.milkWhole.fat +
+      result.milkSkim * EX.milkSkim.fat +
+      result.meatLow * EX.meatLow.fat +
+      result.meatMed * EX.meatMed.fat +
+      result.meatHigh * EX.meatHigh.fat;
+
+    // Step 7: Fat exchanges
+    result.fat = snapExchange((targetFat - fatPartialSum) / 5);
+
+    setExchanges(result);
+  }, [assessment]);
 
   const exchangeData = useMemo(() => {
     if (!assessment) return null;
@@ -366,6 +442,7 @@ export function useNutriCal() {
     updateMealRow,
     moveMealRow,
     generatePlan,
+    suggestExchanges,
     mealPlanValidation,
     assessment,
     exchangeData,

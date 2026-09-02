@@ -25,6 +25,12 @@ function createPage() {
   return browser.newPage({ viewport: { width: 1440, height: 900 } });
 }
 
+// Default patient data is valid, so Assessment unlocks every later step.
+async function goToStep(page, num, name) {
+  await page.click(`button[aria-label="Step ${num}: ${name}"]`);
+  await page.waitForTimeout(200);
+}
+
 describe('E2E: Page loads correctly', () => {
   it('loads the page with correct title', async () => {
     const page = await createPage();
@@ -33,12 +39,13 @@ describe('E2E: Page loads correctly', () => {
     await page.close();
   });
 
-  it('shows all three main sections', async () => {
+  it('shows all four wizard steps', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
     expect(await page.locator('#patient').count()).toBe(1);
     expect(await page.locator('#assessment').count()).toBe(1);
     expect(await page.locator('#prescription').count()).toBe(1);
+    expect(await page.locator('#meal-plan').count()).toBe(1);
     await page.close();
   });
 
@@ -49,6 +56,37 @@ describe('E2E: Page loads correctly', () => {
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
     await page.waitForTimeout(1000);
     expect(errors).toHaveLength(0);
+    await page.close();
+  });
+});
+
+describe('E2E: Wizard navigation', () => {
+  it('shows only the patient step first, then each section when visited', async () => {
+    const page = await createPage();
+    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+
+    expect(await page.locator('#patient').isVisible()).toBe(true);
+    expect(await page.locator('#assessment').isVisible()).toBe(false);
+    expect(await page.locator('#prescription').isVisible()).toBe(false);
+
+    await goToStep(page, 2, 'Assessment');
+    expect(await page.locator('#assessment').isVisible()).toBe(true);
+    expect(await page.locator('#patient').isVisible()).toBe(false);
+
+    await goToStep(page, 3, 'Exchanges');
+    expect(await page.locator('#prescription').isVisible()).toBe(true);
+
+    await goToStep(page, 4, 'Meal Plan');
+    expect(await page.locator('#meal-plan').isVisible()).toBe(true);
+    await page.close();
+  });
+
+  it('navigates back with the Continue button from patient step', async () => {
+    const page = await createPage();
+    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await page.click('text=Continue to Assessment');
+    await page.waitForTimeout(300);
+    expect(await page.locator('#assessment').isVisible()).toBe(true);
     await page.close();
   });
 });
@@ -125,6 +163,7 @@ describe('E2E: Exchange table', () => {
   it('allows changing vegetable exchanges', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await goToStep(page, 3, 'Exchanges');
     const vegInput = page.locator('input[aria-label="Vegetable exchanges"]');
     await vegInput.clear();
     await vegInput.fill('5');
@@ -136,6 +175,7 @@ describe('E2E: Exchange table', () => {
   it('allows changing fruit exchanges', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await goToStep(page, 3, 'Exchanges');
     const fruitInput = page.locator('input[aria-label="Fruit exchanges"]');
     await fruitInput.clear();
     await fruitInput.fill('3');
@@ -147,6 +187,7 @@ describe('E2E: Exchange table', () => {
   it('accepts fractional exchange values', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await goToStep(page, 3, 'Exchanges');
     const vegInput = page.locator('input[aria-label="Vegetable exchanges"]');
     await vegInput.clear();
     await vegInput.fill('2.5');
@@ -158,12 +199,13 @@ describe('E2E: Exchange table', () => {
   it('updates totals when exchanges change', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await goToStep(page, 3, 'Exchanges');
     const vegInput = page.locator('input[aria-label="Vegetable exchanges"]');
     await vegInput.clear();
     await vegInput.fill('10');
     await page.waitForTimeout(500);
     const bodyText = await page.textContent('body');
-    expect(bodyText).toContain('Total Entered');
+    expect(bodyText).toContain('Prescription vs Entered');
     await page.close();
   });
 });
@@ -180,9 +222,12 @@ describe('E2E: Accessibility', () => {
   it('has proper heading hierarchy', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await goToStep(page, 2, 'Assessment');
     const h2s = await page.locator('h2').allTextContents();
     expect(h2s).toContain('Energy Assessment');
-    expect(h2s).toContain('FEL Exchange Distribution');
+    await goToStep(page, 3, 'Exchanges');
+    const h2sLater = await page.locator('h2').allTextContents();
+    expect(h2sLater).toContain('Exchange Distribution');
     await page.close();
   });
 
@@ -197,34 +242,22 @@ describe('E2E: Accessibility', () => {
   it('has aria-labels on all exchange inputs', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
-    const labels = ['Vegetable exchanges', 'Fruit exchanges', 'Milk exchanges', 'Sugar exchanges', 'Fat exchanges'];
+    await goToStep(page, 3, 'Exchanges');
+    const labels = [
+      'Vegetable exchanges',
+      'Fruit exchanges',
+      'Whole Milk exchanges',
+      'Low-Fat Milk exchanges',
+      'Skim Milk exchanges',
+      'Sugar exchanges',
+      'Rice A (Low-Protein) exchanges',
+      'Low-Fat Meat exchanges',
+      'Fat exchanges',
+    ];
     for (const label of labels) {
       const count = await page.locator(`input[aria-label="${label}"]`).count();
       expect(count).toBe(1);
     }
-    await page.close();
-  });
-});
-
-describe('E2E: Visual regression', () => {
-  it('matches the default page layout', async () => {
-    const page = await createPage();
-    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
-    await page.waitForTimeout(1000);
-    const patientSection = page.locator('#patient');
-    const assessmentSection = page.locator('#assessment');
-    const prescriptionSection = page.locator('#prescription');
-    
-    expect(await patientSection.count()).toBe(1);
-    expect(await assessmentSection.count()).toBe(1);
-    expect(await prescriptionSection.count()).toBe(1);
-    
-    const patientBox = await patientSection.boundingBox();
-    const assessmentBox = await assessmentSection.boundingBox();
-    expect(patientBox.y).toBeLessThan(assessmentBox.y);
-    
-    const prescriptionBox = await prescriptionSection.boundingBox();
-    expect(assessmentBox.y).toBeLessThan(prescriptionBox.y);
     await page.close();
   });
 });

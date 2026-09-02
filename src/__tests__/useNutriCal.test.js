@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useNutriCal, fmtInt, fmt1, fmtValue } from '../hooks/useNutriCal';
 
@@ -34,12 +34,12 @@ describe('Formatter utilities', () => {
   });
 
   describe('fmt1', () => {
-    it('formats to 1 decimal place with commas', () => {
-      expect(fmt1(28.34)).toBe('28.3');
-      expect(fmt1(28.36)).toBe('28.4');
-      expect(fmt1(1000)).toBe('1,000.0');
-      expect(fmt1(0)).toBe('0.0');
-      expect(fmt1(NaN)).toBe('0.0');
+    it('rounds to a whole number with commas', () => {
+      expect(fmt1(28.34)).toBe('28');
+      expect(fmt1(28.5)).toBe('29');
+      expect(fmt1(1000)).toBe('1,000');
+      expect(fmt1(0)).toBe('0');
+      expect(fmt1(NaN)).toBe('0');
     });
   });
 
@@ -49,9 +49,10 @@ describe('Formatter utilities', () => {
       expect(fmtValue(5.0)).toBe('5');
     });
 
-    it('returns decimal format for fractional numbers', () => {
-      expect(fmtValue(2.5)).toBe('2.5');
-      expect(fmtValue(3.333)).toBe('3.3');
+    it('rounds fractional numbers to whole numbers', () => {
+      expect(fmtValue(2.5)).toBe('3');
+      expect(fmtValue(3.333)).toBe('3');
+      expect(fmtValue(3.9)).toBe('4');
     });
   });
 });
@@ -111,12 +112,12 @@ describe('useNutriCal hook', () => {
       expect(result.current.exchanges.veg).toBe(5);
     });
 
-    it('handles fractional exchanges', () => {
+    it('rounds fractional exchanges to whole numbers', () => {
       const { result } = renderHook(() => useNutriCal());
       act(() => {
         result.current.updateExchange('fruit', '2.5');
       });
-      expect(result.current.exchanges.fruit).toBe(2.5);
+      expect(result.current.exchanges.fruit).toBe(3);
     });
 
     it('defaults to 0 for invalid values', () => {
@@ -157,8 +158,8 @@ describe('useNutriCal hook', () => {
       fillPatient(result);
       const { dbw } = result.current.assessment;
       // Female: 100 + (1 * 5) = 105 lb base
-      // 105 / 2.2 = 47.73 kg (frame=1)
-      expect(dbw.kg).toBeCloseTo(47.73, 0);
+      // 105 / 2.2 = 47.73 kg -> rounded to 48 kg
+      expect(dbw.kg).toBe(48);
     });
 
     it('computes DBW using Hamwi formula for male', () => {
@@ -169,8 +170,8 @@ describe('useNutriCal hook', () => {
       });
       const { dbw } = result.current.assessment;
       // Male: 106 + (1 * 6) = 112 lb base
-      // 112 / 2.2 = 50.91 kg (frame=1)
-      expect(dbw.kg).toBeCloseTo(50.91, 0);
+      // 112 / 2.2 = 50.91 kg -> rounded to 51 kg
+      expect(dbw.kg).toBe(51);
     });
 
     it('adjusts DBW for small frame', () => {
@@ -180,8 +181,8 @@ describe('useNutriCal hook', () => {
         result.current.updatePatient('frame', '0.9');
       });
       const { dbw } = result.current.assessment;
-      // 105 * 0.9 / 2.2 = 42.95 kg
-      expect(dbw.kg).toBeCloseTo(42.95, 0);
+      // 105 * 0.9 / 2.2 = 42.95 kg -> rounded to 43 kg
+      expect(dbw.kg).toBe(43);
     });
 
     it('adjusts DBW for large frame', () => {
@@ -191,31 +192,31 @@ describe('useNutriCal hook', () => {
         result.current.updatePatient('frame', '1.1');
       });
       const { dbw } = result.current.assessment;
-      // 105 * 1.1 / 2.2 = 52.5 kg
-      expect(dbw.kg).toBeCloseTo(52.5, 0);
+      // 105 * 1.1 / 2.2 = 52.5 kg -> rounded to 53 kg
+      expect(dbw.kg).toBe(53);
     });
 
     it('computes TER correctly', () => {
       const { result } = renderHook(() => useNutriCal());
       fillPatient(result);
-      const { ter, dbw, af } = result.current.assessment;
-      // DBW = 47.73 kg, AF = 35
-      // TER raw = 47.73 * 35 = 1670.5 -> rounded = 1670
-      expect(ter).toBe(1670);
+      const { ter, af } = result.current.assessment;
+      // DBW = 48 kg, AF = 35
+      // TER = 48 * 35 = 1680 -> rounded to nearest 10 = 1680
+      expect(ter).toBe(1680);
       expect(af).toBe(35);
     });
 
     it('computes macronutrient targets with 65/15/20 distribution', () => {
       const { result } = renderHook(() => useNutriCal());
       fillPatient(result);
-      const { ter, targetCho, targetProtein, targetFat, dist } = result.current.assessment;
+      const { targetCho, targetProtein, targetFat, dist } = result.current.assessment;
       expect(dist).toEqual([65, 15, 20]);
-      // CHO: 1670 * 0.65 / 4 = 271.4 g
-      expect(targetCho).toBeCloseTo(271.4, 0);
-      // CHON: 1670 * 0.15 / 4 = 62.6 g
-      expect(targetProtein).toBeCloseTo(62.6, 0);
-      // Fat: 1670 * 0.20 / 9 = 37.1 g
-      expect(targetFat).toBeCloseTo(37.1, 0);
+      // CHO: 1680 * 0.65 / 4 = 273 g
+      expect(targetCho).toBe(273);
+      // PRO: 1680 * 0.15 / 4 = 63 g
+      expect(targetProtein).toBe(63);
+      // Fat: 1680 * 0.20 / 9 = 37.3 g -> rounded to 37 g
+      expect(targetFat).toBe(37);
     });
 
     it('computes TER with different activity factor', () => {
@@ -225,9 +226,9 @@ describe('useNutriCal hook', () => {
         result.current.updatePatient('activity', '40');
       });
       const { ter, af } = result.current.assessment;
-      // DBW = 47.73, AF = 40
-      // 47.73 * 40 = 1909.2 -> rounded = 1910
-      expect(ter).toBe(1910);
+      // DBW = 48, AF = 40
+      // 48 * 40 = 1920 -> rounded to 1920
+      expect(ter).toBe(1920);
       expect(af).toBe(40);
     });
 
@@ -321,6 +322,52 @@ describe('useNutriCal hook', () => {
         result.current.updatePatient('weight', '');
       });
       expect(result.current.exchangeData).toBeNull();
+    });
+  });
+
+  describe('suggestExchanges', () => {
+    it('fills exchanges using the FEL method when an assessment exists', () => {
+      const { result } = renderHook(() => useNutriCal());
+      fillPatient(result);
+
+      act(() => {
+        result.current.suggestExchanges();
+      });
+
+      const ex = result.current.exchanges;
+      expect(ex.veg).toBe(3);
+      expect(ex.fruit).toBe(3);
+      expect(ex.milk).toBe(1);
+      expect(ex.sugar).toBe(2);
+      expect(ex.riceA).toBe(0);
+      expect(ex.riceC).toBe(0);
+      expect(ex.meatLow).toBe(0);
+      expect(ex.meatHigh).toBe(0);
+
+      for (const v of Object.values(ex)) {
+        expect(v * 2).toBe(Math.round(v * 2));
+        expect(v).toBeLessThanOrEqual(20);
+      }
+
+      const { exchangeData } = result.current;
+      expect(exchangeData.totalCho).toBeGreaterThan(0);
+      expect(exchangeData.totalProtein).toBeGreaterThan(0);
+      expect(exchangeData.totalFat).toBeGreaterThan(0);
+      expect(Math.abs(exchangeData.choDiff)).toBeLessThan(15);
+      expect(Math.abs(exchangeData.proteinDiff)).toBeLessThan(15);
+      expect(Math.abs(exchangeData.fatDiff)).toBeLessThan(15);
+    });
+
+    it('does nothing when assessment is null', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => {
+        result.current.updatePatient('age', '');
+        result.current.updatePatient('weight', '');
+      });
+      act(() => {
+        result.current.suggestExchanges();
+      });
+      expect(result.current.exchanges.veg).toBe(0);
     });
   });
 });

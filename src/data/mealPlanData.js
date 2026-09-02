@@ -174,31 +174,38 @@ export const NEW_ROW_DEFAULTS = {
 // ======================
 let _idCounter = 1000;
 
+function snapToInt(n) {
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.round(n);
+}
+
+/** Turn 5 into [1, 1, 1, 1, 1] */
+function splitExchangeCount(total) {
+  const t = snapToInt(total);
+  if (t <= 0) return [];
+  return Array.from({ length: t }, () => 1);
+}
+
+/**
+ * Distribute an array of parts across `slots` buckets as evenly as possible.
+ * Returns array of arrays, length === slots.
+ */
+function distributeParts(parts, slots) {
+  const buckets = Array.from({ length: slots }, () => []);
+  if (!parts.length || slots <= 0) return buckets;
+  parts.forEach((part, i) => {
+    buckets[i % slots].push(part);
+  });
+  return buckets;
+}
+
 function createRow(group, foodIndex = 0, n = 1) {
   return {
     id: _idCounter++,
     group,
     foodIndex,
-    n,
+    n: snapToInt(n) || 1,
   };
-}
-
-/**
- * Evenly distribute a total count across a number of slots
- * Example: distribute(7, 3) → [3, 2, 2]
- */
-function distribute(total, slots) {
-  const result = Array(slots).fill(0);
-  if (total <= 0) return result;
-
-  const base = Math.floor(total / slots);
-  let remainder = total % slots;
-
-  for (let i = 0; i < slots; i++) {
-    result[i] = base + (remainder > 0 ? 1 : 0);
-    if (remainder > 0) remainder--;
-  }
-  return result;
 }
 
 // ======================
@@ -213,99 +220,125 @@ export function generateMealPlan(exchanges = {}) {
   const pmSnack = [];
   const supper = [];
 
-  // --- Vegetable (main meals) ---
+  // --- Vegetable → breakfast, lunch, supper ---
   {
-    const [b, l, s] = distribute(e.veg || 0, 3);
-    for (let i = 0; i < b; i++) breakfast.push(createRow('veg'));
-    for (let i = 0; i < l; i++) lunch.push(createRow('veg'));
-    for (let i = 0; i < s; i++) supper.push(createRow('veg'));
+    const parts = splitExchangeCount(e.veg || 0);
+    const [vB, vL, vS] = distributeParts(parts, 3);
+    vB.forEach((n) => breakfast.push(createRow('veg', 0, n)));
+    vL.forEach((n) => lunch.push(createRow('veg', 0, n)));
+    vS.forEach((n) => supper.push(createRow('veg', 0, n)));
   }
 
-  // --- Fruit ---
+  // --- Fruit → all 5 meals ---
   {
-    const [b, am, l, pm, s] = distribute(e.fruit || 0, 5);
-    for (let i = 0; i < b; i++) breakfast.push(createRow('fruit'));
-    for (let i = 0; i < am; i++) amSnack.push(createRow('fruit'));
-    for (let i = 0; i < l; i++) lunch.push(createRow('fruit'));
-    for (let i = 0; i < pm; i++) pmSnack.push(createRow('fruit'));
-    for (let i = 0; i < s; i++) supper.push(createRow('fruit'));
+    const parts = splitExchangeCount(e.fruit || 0);
+    const [fB, fAm, fL, fPm, fS] = distributeParts(parts, 5);
+    fB.forEach((n) => breakfast.push(createRow('fruit', 0, n)));
+    fAm.forEach((n) => amSnack.push(createRow('fruit', 0, n)));
+    fL.forEach((n) => lunch.push(createRow('fruit', 0, n)));
+    fPm.forEach((n) => pmSnack.push(createRow('fruit', 0, n)));
+    fS.forEach((n) => supper.push(createRow('fruit', 0, n)));
   }
 
-  // --- Milk (prefer breakfast & snacks) ---
+  // --- Milk (prefer breakfast → amSnack → pmSnack → lunch for leftovers) ---
   ['milkWhole', 'milk', 'milkSkim'].forEach((key) => {
-    const count = e[key] || 0;
-    if (count >= 1) breakfast.push(createRow(key));
-    if (count >= 2) amSnack.push(createRow(key));
-    if (count >= 3) pmSnack.push(createRow(key));
-    for (let i = 3; i < count; i++) {
-      lunch.push(createRow(key));
+    const parts = splitExchangeCount(e[key] || 0);
+    if (parts.length === 0) return;
+    if (parts.length === 1) {
+      breakfast.push(createRow(key, 0, parts[0]));
+    } else if (parts.length === 2) {
+      breakfast.push(createRow(key, 0, parts[0]));
+      amSnack.push(createRow(key, 0, parts[1]));
+    } else if (parts.length === 3) {
+      breakfast.push(createRow(key, 0, parts[0]));
+      amSnack.push(createRow(key, 0, parts[1]));
+      pmSnack.push(createRow(key, 0, parts[2]));
+    } else {
+      breakfast.push(createRow(key, 0, parts[0]));
+      amSnack.push(createRow(key, 0, parts[1]));
+      pmSnack.push(createRow(key, 0, parts[2]));
+      for (let i = 3; i < parts.length; i++) {
+        lunch.push(createRow(key, 0, parts[i]));
+      }
     }
   });
 
-  // --- Sugar ---
+  // --- Sugar (prefer breakfast → amSnack → pmSnack → lunch) ---
   {
-    const total = e.sugar || 0;
-    if (total >= 1) breakfast.push(createRow('sugar'));
-    if (total >= 2) amSnack.push(createRow('sugar'));
-    if (total >= 3) pmSnack.push(createRow('sugar'));
-    for (let i = 3; i < total; i++) {
-      lunch.push(createRow('sugar'));
+    const parts = splitExchangeCount(e.sugar || 0);
+    if (parts.length === 1) {
+      breakfast.push(createRow('sugar', 0, parts[0]));
+    } else if (parts.length === 2) {
+      breakfast.push(createRow('sugar', 0, parts[0]));
+      amSnack.push(createRow('sugar', 0, parts[1]));
+    } else if (parts.length === 3) {
+      breakfast.push(createRow('sugar', 0, parts[0]));
+      amSnack.push(createRow('sugar', 0, parts[1]));
+      pmSnack.push(createRow('sugar', 0, parts[2]));
+    } else {
+      for (let i = 0; i < parts.length; i++) {
+        if (i === 0) breakfast.push(createRow('sugar', 0, parts[i]));
+        else if (i === 1) amSnack.push(createRow('sugar', 0, parts[i]));
+        else if (i === 2) pmSnack.push(createRow('sugar', 0, parts[i]));
+        else lunch.push(createRow('sugar', 0, parts[i]));
+      }
     }
   }
 
-  // --- Rice A (usually snack or side) ---
+  // --- Rice A → pmSnack + breakfast ---
   {
-    const [pm, b] = distribute(e.riceA || 0, 2);
-    for (let i = 0; i < pm; i++) pmSnack.push(createRow('riceA'));
-    for (let i = 0; i < b; i++) breakfast.push(createRow('riceA'));
+    const parts = splitExchangeCount(e.riceA || 0);
+    const [rPm, rB] = distributeParts(parts, 2);
+    rPm.forEach((n) => pmSnack.push(createRow('riceA', 0, n)));
+    rB.forEach((n) => breakfast.push(createRow('riceA', 0, n)));
   }
 
-  // --- Rice B (main carbohydrate) ---
+  // --- Rice B → breakfast, amSnack, lunch, supper ---
   {
-    const [b, am, l, s] = distribute(e.riceB || 0, 4);
-    for (let i = 0; i < b; i++) breakfast.push(createRow('riceB'));
-    for (let i = 0; i < am; i++) amSnack.push(createRow('riceB'));
-    for (let i = 0; i < l; i++) lunch.push(createRow('riceB'));
-    for (let i = 0; i < s; i++) supper.push(createRow('riceB'));
+    const parts = splitExchangeCount(e.riceB || 0);
+    const [rB, rAm, rL, rS] = distributeParts(parts, 4);
+    rB.forEach((n) => breakfast.push(createRow('riceB', 0, n)));
+    rAm.forEach((n) => amSnack.push(createRow('riceB', 0, n)));
+    rL.forEach((n) => lunch.push(createRow('riceB', 0, n)));
+    rS.forEach((n) => supper.push(createRow('riceB', 0, n)));
   }
 
-  // --- Rice C (usually breakfast) ---
+  // --- Rice C → breakfast ---
   {
-    const total = e.riceC || 0;
-    for (let i = 0; i < total; i++) {
-      breakfast.push(createRow('riceC'));
-    }
+    const parts = splitExchangeCount(e.riceC || 0);
+    parts.forEach((n) => breakfast.push(createRow('riceC', 0, n)));
   }
 
-  // --- Low-Fat Meat ---
+  // --- Low-Fat Meat → lunch, supper ---
   {
-    const [l, s] = distribute(e.meatLow || 0, 2);
-    for (let i = 0; i < l; i++) lunch.push(createRow('meatLow'));
-    for (let i = 0; i < s; i++) supper.push(createRow('meatLow'));
+    const parts = splitExchangeCount(e.meatLow || 0);
+    const [mL, mS] = distributeParts(parts, 2);
+    mL.forEach((n) => lunch.push(createRow('meatLow', 0, n)));
+    mS.forEach((n) => supper.push(createRow('meatLow', 0, n)));
   }
 
-  // --- Medium-Fat Meat ---
+  // --- Medium-Fat Meat → breakfast, lunch, supper ---
   {
-    const [b, l, s] = distribute(e.meatMed || 0, 3);
-    for (let i = 0; i < b; i++) breakfast.push(createRow('meatMed'));
-    for (let i = 0; i < l; i++) lunch.push(createRow('meatMed'));
-    for (let i = 0; i < s; i++) supper.push(createRow('meatMed'));
+    const parts = splitExchangeCount(e.meatMed || 0);
+    const [mB, mL, mS] = distributeParts(parts, 3);
+    mB.forEach((n) => breakfast.push(createRow('meatMed', 0, n)));
+    mL.forEach((n) => lunch.push(createRow('meatMed', 0, n)));
+    mS.forEach((n) => supper.push(createRow('meatMed', 0, n)));
   }
 
-  // --- High-Fat Meat ---
+  // --- High-Fat Meat → lunch ---
   {
-    const total = e.meatHigh || 0;
-    for (let i = 0; i < total; i++) {
-      lunch.push(createRow('meatHigh'));
-    }
+    const parts = splitExchangeCount(e.meatHigh || 0);
+    parts.forEach((n) => lunch.push(createRow('meatHigh', 0, n)));
   }
 
-  // --- Fat ---
+  // --- Fat → breakfast, lunch, supper ---
   {
-    const [b, l, s] = distribute(e.fat || 0, 3);
-    for (let i = 0; i < b; i++) breakfast.push(createRow('fat'));
-    for (let i = 0; i < l; i++) lunch.push(createRow('fat'));
-    for (let i = 0; i < s; i++) supper.push(createRow('fat'));
+    const parts = splitExchangeCount(e.fat || 0);
+    const [fB, fL, fS] = distributeParts(parts, 3);
+    fB.forEach((n) => breakfast.push(createRow('fat', 0, n)));
+    fL.forEach((n) => lunch.push(createRow('fat', 0, n)));
+    fS.forEach((n) => supper.push(createRow('fat', 0, n)));
   }
 
   return {
