@@ -24,7 +24,9 @@ describe('App integration', () => {
 
   it('renders footer', () => {
     render(<App />);
-    expect(screen.getByText(/DOST-FNRI Food Exchange Lists/)).toBeInTheDocument();
+    const footer = document.querySelector('footer');
+    expect(footer).toBeTruthy();
+    expect(footer.textContent).toContain('NutriCal');
   });
 
   it('shows the print button', () => {
