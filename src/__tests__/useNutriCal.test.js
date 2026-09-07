@@ -137,6 +137,61 @@ describe('useNutriCal hook', () => {
     });
   });
 
+  describe('clearExchanges', () => {
+    it('resets all exchanges to zero', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => {
+        result.current.updateExchange('veg', '5');
+        result.current.updateExchange('fruit', '2');
+        result.current.updateExchange('meatLow', '4');
+        result.current.updateExchange('fat', '3');
+      });
+      expect(result.current.exchanges.veg).toBe(5);
+      act(() => {
+        result.current.clearExchanges();
+      });
+      expect(result.current.exchanges).toEqual({
+        veg: 0,
+        fruit: 0,
+        milkWhole: 0,
+        milk: 0,
+        milkSkim: 0,
+        sugar: 0,
+        riceA: 0,
+        riceB: 0,
+        riceC: 0,
+        meatLow: 0,
+        meatMed: 0,
+        meatHigh: 0,
+        fat: 0,
+      });
+    });
+  });
+
+  describe('clearMealPlan', () => {
+    it('removes all rows from every meal', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => {
+        result.current.addMealRow('breakfast');
+        result.current.addMealRow('lunch');
+        result.current.addMealRow('lunch');
+        result.current.addMealRow('supper');
+      });
+      expect(result.current.mealPlan.breakfast).toHaveLength(1);
+      expect(result.current.mealPlan.lunch).toHaveLength(2);
+      act(() => {
+        result.current.clearMealPlan();
+      });
+      expect(result.current.mealPlan).toEqual({
+        breakfast: [],
+        amSnack: [],
+        lunch: [],
+        pmSnack: [],
+        supper: [],
+      });
+    });
+  });
+
   describe('assessment calculations', () => {
     it('computes BMI correctly', () => {
       const { result } = renderHook(() => useNutriCal());

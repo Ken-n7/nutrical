@@ -9,6 +9,7 @@ import Stepper from './components/Stepper';
 import RecapSidebar from './components/RecapSidebar';
 import PrescriptionCompare from './components/PrescriptionCompare';
 import PlanCompare from './components/PlanCompare';
+import StarBackground from './components/StarBackground';
 
 const STEPS = [
   { id: 'patient', num: '1', name: 'Patient' },
@@ -36,11 +37,13 @@ export default function App() {
     updatePatient,
     exchanges,
     updateExchange,
+    clearExchanges,
     mealPlan,
     addMealRow,
     removeMealRow,
     updateMealRow,
     moveMealRow,
+    clearMealPlan,
     generatePlan,
     suggestExchanges,
     mealPlanValidation,
@@ -179,7 +182,8 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-bg text-text antialiased">
+    <div className="min-h-screen text-text antialiased">
+      <StarBackground />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only no-print focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md"
@@ -284,6 +288,7 @@ export default function App() {
                   exchangeData={exchangeData}
                   assessment={assessment}
                   suggestExchanges={suggestExchanges}
+                  clearExchanges={clearExchanges}
                 />
               )
             ) : (
@@ -309,6 +314,7 @@ export default function App() {
                 updateMealRow={updateMealRow}
                 moveMealRow={moveMealRow}
                 generatePlan={generatePlan}
+                clearMealPlan={clearMealPlan}
                 exchanges={exchanges}
                 mealPlanValidation={mealPlanValidation}
               />
@@ -317,14 +323,6 @@ export default function App() {
           </>
         ))}
       </main>
-
-      <footer className="hidden lg:block border-t border-border bg-surface pt-5 pb-16 lg:py-5 mt-4">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-sm text-text m-0">
-            <strong>NutriCal</strong>
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

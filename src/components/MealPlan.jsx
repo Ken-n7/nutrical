@@ -1,12 +1,31 @@
 import { useState, useRef, useCallback } from 'react';
+import { AnimatePresence } from 'motion/react';
 import {
   FOOD_ITEMS,
   MEAL_PERIODS,
   GROUP_LABELS,
   GROUP_KEYS,
 } from '../data/mealPlanData';
+import ConfirmDialog from './ConfirmDialog';
 
 const EXCHANGE_MAX = 20;
+
+const TRASH_ICON = (
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M10 11v6M14 11v6" />
+  </svg>
+);
 
 function MealRow({
   item,
@@ -303,9 +322,12 @@ export default function MealPlan({
   updateMealRow,
   moveMealRow,
   generatePlan,
+  clearMealPlan,
   exchanges,
   mealPlanValidation,
 }) {
+  const [confirmingClear, setConfirmingClear] = useState(false);
+
   if (!mealPlan || !mealPlanValidation) return null;
 
   const hasExchanges = exchanges && Object.values(exchanges).some((v) => v > 0);
@@ -321,6 +343,17 @@ export default function MealPlan({
         </p>
 
         <div className="flex items-center gap-3">
+          {!isEmpty && (
+            <button
+              type="button"
+              onClick={() => setConfirmingClear(true)}
+              className="btn btn-ghost text-sm cursor-pointer"
+              title="Remove all meal rows"
+            >
+              {TRASH_ICON}
+              Clear all
+            </button>
+          )}
           {hasExchanges && (
             <button
               type="button"
@@ -370,6 +403,22 @@ export default function MealPlan({
           />
         ))}
       </div>
+
+      <AnimatePresence>
+        {confirmingClear && (
+          <ConfirmDialog
+            title="Clear all meals?"
+            description="This will remove every row from all five meals. This action cannot be undone."
+            confirmLabel="Clear all"
+            icon={TRASH_ICON}
+            onCancel={() => setConfirmingClear(false)}
+            onConfirm={() => {
+              clearMealPlan?.();
+              setConfirmingClear(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExchangeTable from '../components/ExchangeTable';
 
@@ -43,16 +43,20 @@ const defaultExchangeData = {
 
 function renderExchangeTable(overrides = {}) {
   const updateExchange = vi.fn();
+  const clearExchanges = vi.fn();
   const defaultProps = {
     exchanges: defaultExchanges,
     updateExchange,
     exchangeData: defaultExchangeData,
     assessment: defaultAssessment,
+    suggestExchanges: vi.fn(),
+    clearExchanges,
     ...overrides,
   };
   return {
     ...render(<ExchangeTable {...defaultProps} />),
     updateExchange,
+    clearExchanges,
   };
 }
 
@@ -192,6 +196,41 @@ describe('ExchangeTable', () => {
       expect(screen.getByLabelText('Vegetable exchanges')).toBeInTheDocument();
       expect(screen.getByLabelText('Fruit exchanges')).toBeInTheDocument();
       expect(screen.getByLabelText('Low-Fat Milk exchanges')).toBeInTheDocument();
+    });
+  });
+
+  describe('clear all exchanges', () => {
+    it('renders a clear all button', () => {
+      renderExchangeTable();
+      expect(screen.getByRole('button', { name: 'Clear all' })).toBeInTheDocument();
+    });
+
+    it('opens a confirmation modal before clearing', async () => {
+      const user = userEvent.setup();
+      const { clearExchanges } = renderExchangeTable();
+      await user.click(screen.getByRole('button', { name: 'Clear all' }));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('Clear all exchanges?')).toBeInTheDocument();
+      expect(clearExchanges).not.toHaveBeenCalled();
+    });
+
+    it('does not clear when cancelled', async () => {
+      const user = userEvent.setup();
+      const { clearExchanges } = renderExchangeTable();
+      await user.click(screen.getByRole('button', { name: 'Clear all' }));
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+      await waitForElementToBeRemoved(screen.getByRole('dialog'));
+      expect(clearExchanges).not.toHaveBeenCalled();
+    });
+
+    it('clears all exchanges after confirming', async () => {
+      const user = userEvent.setup();
+      const { clearExchanges } = renderExchangeTable();
+      await user.click(screen.getByRole('button', { name: 'Clear all' }));
+      const dialog = screen.getByRole('dialog');
+      await user.click(within(dialog).getByRole('button', { name: 'Clear all' }));
+      expect(clearExchanges).toHaveBeenCalledTimes(1);
+      await waitForElementToBeRemoved(screen.getByRole('dialog'));
     });
   });
 });

@@ -1,5 +1,24 @@
 import { useCallback, useState } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { fmt1, fmtInt, fmtValue } from '../hooks/useNutriCal';
+import ConfirmDialog from './ConfirmDialog';
+
+const TRASH_ICON = (
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M10 11v6M14 11v6" />
+  </svg>
+);
 
 const EXCHANGE_MAX = 20;
 const DEFAULT_OPEN = { basic: true, rice: true, meat: true, fat: true };
@@ -122,8 +141,10 @@ export default function ExchangeTable({
   exchangeData,
   assessment,
   suggestExchanges,
+  clearExchanges,
 }) {
   const [open, setOpen] = useState({ ...DEFAULT_OPEN });
+  const [confirmingClear, setConfirmingClear] = useState(false);
   const toggleSection = (key) => setOpen((o) => ({ ...o, [key]: !o[key] }));
 
   if (!exchangeData || !assessment) return null;
@@ -196,6 +217,15 @@ export default function ExchangeTable({
             </svg>
             Suggest from targets
           </button>
+          <button
+              type="button"
+              onClick={clearExchanges ? () => setConfirmingClear(true) : undefined}
+              className="btn btn-ghost text-sm cursor-pointer"
+              title="Reset all exchange values to 0"
+            >
+              {TRASH_ICON}
+              Clear all
+            </button>
           <span className="badge badge-info">
             <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
             Nutritionist Input
@@ -398,6 +428,22 @@ export default function ExchangeTable({
           Values are rounded to whole exchanges. Maximum {EXCHANGE_MAX} per group.
         </p>
       </div>
+
+      <AnimatePresence>
+        {confirmingClear && (
+          <ConfirmDialog
+            title="Clear all exchanges?"
+            description="This will reset every food group to 0. This action cannot be undone."
+            confirmLabel="Clear all"
+            icon={TRASH_ICON}
+            onCancel={() => setConfirmingClear(false)}
+            onConfirm={() => {
+              clearExchanges?.();
+              setConfirmingClear(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

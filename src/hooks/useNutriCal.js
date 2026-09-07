@@ -132,6 +132,10 @@ export function useNutriCal() {
     }));
   }, []);
 
+  const clearExchanges = useCallback(() => {
+    setExchanges(initialExchanges);
+  }, []);
+
   const addMealRow = useCallback((mealKey) => {
     setMealPlan((prev) => ({
       ...prev,
@@ -161,6 +165,16 @@ export function useNutriCal() {
       rows.splice(insertAt, 0, moved);
 
       return { ...prev, [mealKey]: rows };
+    });
+  }, []);
+
+  const clearMealPlan = useCallback(() => {
+    setMealPlan({
+      breakfast: [],
+      amSnack: [],
+      lunch: [],
+      pmSnack: [],
+      supper: [],
     });
   }, []);
 
@@ -436,11 +450,13 @@ export function useNutriCal() {
     updatePatient,
     exchanges,
     updateExchange,
+    clearExchanges,
     mealPlan,
     addMealRow,
     removeMealRow,
     updateMealRow,
     moveMealRow,
+    clearMealPlan,
     generatePlan,
     suggestExchanges,
     mealPlanValidation,

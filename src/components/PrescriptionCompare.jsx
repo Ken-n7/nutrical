@@ -1,42 +1,35 @@
 import { CircleAlert, CircleCheck } from 'lucide-react';
 import { MovingBorderOutline } from './ui/moving-border';
 import { fmt1, fmtInt } from '../hooks/useNutriCal';
+import Tooltip from './Tooltip';
 
 function OkBadge() {
   return (
-    <span className="fel-warn-tip">
+    <Tooltip text="Within tolerance">
       <span
         className="fel-ok-badge"
         role="img"
         aria-label="Within tolerance"
-        aria-describedby="ok-tip"
         tabIndex={0}
       >
         <CircleCheck size={18} strokeWidth={2} aria-hidden="true" />
       </span>
-      <span className="fel-warn-tip-text" id="ok-tip" role="tooltip">
-        Within tolerance
-      </span>
-    </span>
+    </Tooltip>
   );
 }
 
 function WarnBadge() {
   return (
-    <span className="fel-warn-tip">
+    <Tooltip text="Needs review">
       <span
         className="fel-warn-badge"
         role="img"
         aria-label="Review needed"
-        aria-describedby="review-tip"
         tabIndex={0}
       >
         <CircleAlert size={18} strokeWidth={2} aria-hidden="true" />
       </span>
-      <span className="fel-warn-tip-text" id="review-tip" role="tooltip">
-        Needs review
-      </span>
-    </span>
+    </Tooltip>
   );
 }
 

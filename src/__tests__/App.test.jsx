@@ -22,13 +22,6 @@ describe('App integration', () => {
     expect(screen.getByText('Skip to main content')).toBeInTheDocument();
   });
 
-  it('renders footer', () => {
-    render(<App />);
-    const footer = document.querySelector('footer');
-    expect(footer).toBeTruthy();
-    expect(footer.textContent).toContain('NutriCal');
-  });
-
   it('shows the print button', () => {
     render(<App />);
     expect(screen.getByText('Print')).toBeInTheDocument();
