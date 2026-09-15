@@ -6,11 +6,11 @@ const defaultPatient = {
   name: 'Maria Dela Cruz',
   age: '45',
   sex: 'female',
-  frame: 1,
+  frame: '1',
   heightFt: '5',
   heightIn: '1',
   weight: '150',
-  activity: 35,
+  activity: '35',
   distribution: '65,15,20',
 };
 
@@ -66,8 +66,8 @@ describe('useNutriCal hook', () => {
     expect(result.current.patient.weight).toBe('150');
     expect(result.current.patient.heightFt).toBe('5');
     expect(result.current.patient.heightIn).toBe('1');
-    expect(result.current.patient.activity).toBe(35);
-    expect(result.current.patient.frame).toBe(1);
+    expect(result.current.patient.activity).toBe('35');
+    expect(result.current.patient.frame).toBe('1');
   });
 
   it('initializes with zero exchanges', () => {

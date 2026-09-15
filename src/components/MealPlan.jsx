@@ -6,9 +6,8 @@ import {
   GROUP_LABELS,
   GROUP_KEYS,
 } from '../data/mealPlanData';
+import { EXCHANGE_MAX } from '../hooks/useNutriCal';
 import ConfirmDialog from './ConfirmDialog';
-
-const EXCHANGE_MAX = 20;
 
 const TRASH_ICON = (
   <svg
@@ -200,6 +199,7 @@ function MealSection({
     dropSide: null,
   });
   const dragItem = useRef(null);
+  const dropSideRef = useRef(null);
 
   const handleDragStart = useCallback((e, rowId) => {
     dragItem.current = rowId;
@@ -217,6 +217,7 @@ function MealSection({
 
     const rect = e.currentTarget.getBoundingClientRect();
     const side = e.clientY < rect.top + rect.height / 2 ? 'top' : 'bottom';
+    dropSideRef.current = side;
 
     setDragState((prev) => {
       if (prev.overId === rowId && prev.dropSide === side) return prev;
@@ -229,16 +230,18 @@ function MealSection({
       e.preventDefault();
       const sourceId = dragItem.current;
       if (sourceId && sourceId !== targetId) {
-        moveMealRow(mealKey, sourceId, targetId, dragState.dropSide || 'bottom');
+        moveMealRow(mealKey, sourceId, targetId, dropSideRef.current || 'bottom');
       }
       setDragState({ draggingId: null, overId: null, dropSide: null });
+      dropSideRef.current = null;
       dragItem.current = null;
     },
-    [dragState.dropSide, mealKey, moveMealRow]
+    [mealKey, moveMealRow]
   );
 
   const handleDragEnd = useCallback(() => {
     setDragState({ draggingId: null, overId: null, dropSide: null });
+    dropSideRef.current = null;
     dragItem.current = null;
   }, []);
 

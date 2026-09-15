@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { useNutriCal } from './hooks/useNutriCal';
+import { useNutriCal, DEFAULT_DISTRIBUTION } from './hooks/useNutriCal';
 import PatientForm from './components/PatientForm';
 import AssessmentDisplay from './components/AssessmentDisplay';
 import ExchangeTable from './components/ExchangeTable';
@@ -74,9 +74,9 @@ export default function App() {
       const totalInches = (parseInt(heightFt, 10) || 0) * 12 + (parseInt(heightIn, 10) || 0);
       const wtLbs = parseFloat(weight) || 0;
       const af = parseFloat(activity) || 35;
-      const dist = (distribution || '65,15,20').split(',').map(Number);
+      const dist = (distribution || DEFAULT_DISTRIBUTION).split(',').map(Number);
 
-      if (![parseFloat(age), totalInches, wtLbs, frame, af].every(Number.isFinite)) {
+      if (![parseFloat(age), totalInches, wtLbs, parseFloat(frame), af].every(Number.isFinite)) {
         setError('Please complete all patient assessment fields.');
         return;
       }

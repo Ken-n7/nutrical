@@ -1,6 +1,7 @@
 import { GROUP_KEYS, GROUP_LABELS } from '../data/mealPlanData';
 
 export default function PlanCompare({ validation, exchanges }) {
+  if (!validation?.groups) return null;
   const { groups } = validation;
   const entries = GROUP_KEYS.filter(
     (g) => (exchanges[g] || 0) > 0 || (groups[g]?.mealTotal || 0) > 0

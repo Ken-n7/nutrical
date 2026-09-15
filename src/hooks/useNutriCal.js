@@ -31,7 +31,11 @@ const roundN = (n) => {
   if (!Number.isFinite(n) || n <= 0) return 0;
   return Math.round(n);
 };
-const snapExchange = (n) => Math.min(20, roundN(n));
+const EXCHANGE_MAX = 20;
+const DEFAULT_DISTRIBUTION = '65,15,20';
+const snapExchange = (n) => Math.min(EXCHANGE_MAX, roundN(n));
+
+export { EXCHANGE_MAX, DEFAULT_DISTRIBUTION };
 
 const FACTOR_LABEL = {
   30: 'Lightly active',
@@ -79,12 +83,12 @@ const initialPatient = {
   name: '',
   age: '25',
   sex: 'female',
-  frame: 1,
+  frame: '1',
   heightFt: '5',
   heightIn: '1',
   weight: '150',
-  activity: 35,
-  distribution: '65,15,20',
+  activity: '35',
+  distribution: DEFAULT_DISTRIBUTION,
 };
 
 const initialExchanges = {
@@ -125,7 +129,7 @@ export function useNutriCal() {
   const updateExchange = useCallback((key, value) => {
     const num = parseFloat(value);
     const rounded = Number.isFinite(num) && num >= 0 ? Math.round(num) : 0;
-    const capped = Math.min(rounded, 20);
+    const capped = Math.min(rounded, EXCHANGE_MAX);
     setExchanges((prev) => ({
       ...prev,
       [key]: capped,
@@ -137,11 +141,12 @@ export function useNutriCal() {
   }, []);
 
   const addMealRow = useCallback((mealKey) => {
+    const id = rowIdRef.current++;
     setMealPlan((prev) => ({
       ...prev,
       [mealKey]: [
         ...(prev[mealKey] || []),
-        { id: rowIdRef.current++, ...NEW_ROW_DEFAULTS },
+        { id, ...NEW_ROW_DEFAULTS },
       ],
     }));
   }, []);
@@ -190,7 +195,7 @@ export function useNutriCal() {
         if (field === 'n') {
           const num = parseFloat(value);
           const rounded = Number.isFinite(num) && num >= 0 ? Math.round(num) : 0;
-          const capped = Math.min(rounded, 20);
+          const capped = Math.min(rounded, EXCHANGE_MAX);
           return { ...r, n: capped };
         }
         return { ...r, [field]: parseInt(value, 10) };
@@ -210,7 +215,7 @@ export function useNutriCal() {
     const wtLbs = parseFloat(weight) || 0;
     const af = parseFloat(activity) || 35;
     const frameNum = parseFloat(frame) || 1;
-    const dist = (distribution || '65,15,20').split(',').map(Number);
+    const dist = (distribution || DEFAULT_DISTRIBUTION).split(',').map(Number);
 
     if (![parseFloat(age), totalInches, wtLbs, frameNum, af].every(Number.isFinite)) {
       return null;

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
-import { fmt1, fmtInt, fmtValue } from '../hooks/useNutriCal';
+import { fmt1, fmtInt, fmtValue, EXCHANGE_MAX } from '../hooks/useNutriCal';
 import ConfirmDialog from './ConfirmDialog';
 
 const TRASH_ICON = (
@@ -20,7 +20,6 @@ const TRASH_ICON = (
   </svg>
 );
 
-const EXCHANGE_MAX = 20;
 const DEFAULT_OPEN = { basic: true, rice: true, meat: true, fat: true };
 
 function ExchangeInput({ value, onChange, label }) {
