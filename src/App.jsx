@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { ArrowLeft, ArrowRight, Loader2, Save } from 'lucide-react';
 import { useNutriCal, DEFAULT_DISTRIBUTION } from './hooks/useNutriCal';
+import { downloadMealPlanPdf } from './lib/mealPlanPdf';
 import PatientForm from './components/PatientForm';
 import AssessmentDisplay from './components/AssessmentDisplay';
 import ExchangeTable from './components/ExchangeTable';
 import MealPlan from './components/MealPlan';
+import MealPlanPrint from './components/MealPlanPrint';
 import Stepper from './components/Stepper';
 import RecapSidebar from './components/RecapSidebar';
 import PrescriptionCompare from './components/PrescriptionCompare';
@@ -55,6 +57,22 @@ export default function App() {
 
   const [step, setStep] = useState(0);
   const [theme, setTheme] = useState(getInitialTheme);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+
+  const handleSave = useCallback(async () => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    try {
+      await downloadMealPlanPdf(patient);
+    } catch {
+      /* silent — browser handles the download notification */
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
+  }, [patient]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -222,9 +240,23 @@ export default function App() {
                 </svg>
               )}
             </button>
-            <button type="button" onClick={() => window.print()} className="btn-ghost no-print text-xs h-9 px-3">
-              Print
-            </button>
+            {Object.values(mealPlan).some((rows) => rows.length > 0) && (
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                aria-busy={saving}
+                className="btn btn-primary no-print text-xs h-9 px-3 gap-1.5 min-w-32 cursor-pointer disabled:cursor-wait"
+                title="Save meal plan as PDF"
+              >
+                {saving ? (
+                  <Loader2 size={14} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Save size={14} aria-hidden="true" />
+                )}
+                {saving ? 'Preparing PDF…' : 'Save meal plan'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -301,28 +333,32 @@ export default function App() {
         {/* Step 4: Meal Plan */}
         {section('meal-plan', (
           <>
-            {stepHeading(3, '4', 'One-Day Meal Plan', 'Distribute exchanges across meals.')}
-            {twoCol(
-              <RecapSidebar patient={patient} assessment={assessment}>
-                <PrescriptionCompare exchangeData={exchangeData} assessment={assessment} />
-                <PlanCompare validation={mealPlanValidation} exchanges={exchanges} />
-              </RecapSidebar>,
-              <MealPlan
-                mealPlan={mealPlan}
-                addMealRow={addMealRow}
-                removeMealRow={removeMealRow}
-                updateMealRow={updateMealRow}
-                moveMealRow={moveMealRow}
-                generatePlan={generatePlan}
-                clearMealPlan={clearMealPlan}
-                exchanges={exchanges}
-                mealPlanValidation={mealPlanValidation}
-              />
-            )}
-            {nav(2, null)}
+            <div className="meal-plan-screen">
+              {stepHeading(3, '4', 'One-Day Meal Plan', 'Distribute exchanges across meals.')}
+              {twoCol(
+                <RecapSidebar patient={patient} assessment={assessment}>
+                  <PrescriptionCompare exchangeData={exchangeData} assessment={assessment} />
+                  <PlanCompare validation={mealPlanValidation} exchanges={exchanges} />
+                </RecapSidebar>,
+                <MealPlan
+                  mealPlan={mealPlan}
+                  addMealRow={addMealRow}
+                  removeMealRow={removeMealRow}
+                  updateMealRow={updateMealRow}
+                  moveMealRow={moveMealRow}
+                  generatePlan={generatePlan}
+                  clearMealPlan={clearMealPlan}
+                  exchanges={exchanges}
+                  mealPlanValidation={mealPlanValidation}
+                />
+              )}
+              {nav(2, null)}
+            </div>
           </>
         ))}
       </main>
+
+      <MealPlanPrint mealPlan={mealPlan} patient={patient} />
     </div>
   );
 }

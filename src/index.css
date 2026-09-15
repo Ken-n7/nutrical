@@ -815,17 +815,86 @@
   }
 }
 
-/* ---------- Print ---------- */
+/* ---------- Meal plan print (off-screen for PDF capture, in-flow for Ctrl+P) ---------- */
+.meal-plan-print {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 794px;
+  background: #fff;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #000;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.meal-plan-print header {
+  border-bottom: 2px solid #000;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+.meal-plan-print header > div:first-child {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.meal-plan-print header > div:last-child {
+  font-size: 12px;
+  margin-top: 4px;
+}
+.meal-plan-print table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.meal-plan-print .meal-col-meal {
+  width: 22%;
+}
+.meal-plan-print .meal-col-measure {
+  width: 24%;
+}
+.meal-plan-print th,
+.meal-plan-print td {
+  border: 1px solid #000;
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.meal-plan-print thead th {
+  background: #f4f4f5;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.meal-plan-print tbody th {
+  font-weight: 700;
+}
+.meal-plan-print tr {
+  break-inside: avoid;
+}
+.meal-plan-print td.meal-plan-empty {
+  color: #666;
+}
+
+/* ---------- Print (browser Ctrl+P / Cmd+P) ---------- */
 @media print {
-  .no-print {
+  .no-print,
+  .meal-plan-screen {
     display: none !important;
   }
+
   .wizard-step {
-    display: block !important;
-    break-inside: avoid;
+    display: none !important;
   }
+
   .table, .card {
     box-shadow: none;
+  }
+
+  .meal-plan-print {
+    position: static;
+    left: auto;
+    width: 100%;
   }
 }
 

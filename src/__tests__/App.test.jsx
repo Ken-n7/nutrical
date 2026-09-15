@@ -22,14 +22,23 @@ describe('App integration', () => {
     expect(screen.getByText('Skip to main content')).toBeInTheDocument();
   });
 
-  it('shows the print button', () => {
+  it('hides the save button when the meal plan is empty', () => {
     render(<App />);
-    expect(screen.getByText('Print')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save meal plan' })).not.toBeInTheDocument();
   });
 
   it('shows meal plan section', () => {
     render(<App />);
     expect(screen.getAllByText('One-Day Meal Plan').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders the printable meal plan at the app root, always visible for capture', () => {
+    const { container } = render(<App />);
+    const printBlock = container.querySelector('.meal-plan-print');
+    expect(printBlock).not.toBeNull();
+    expect(printBlock.closest('section#meal-plan')).toBeNull();
+    expect(printBlock.querySelector('table')).not.toBeNull();
+    expect(getComputedStyle(printBlock).display).not.toBe('none');
   });
 
   it('renders patient information section', () => {
