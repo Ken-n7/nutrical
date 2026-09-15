@@ -191,7 +191,7 @@ export default function App() {
         Skip to main content
       </a>
 
-      <header className="sticky top-0 z-30 bg-surface border-b border-border no-print">
+      <header className="sticky top-0 z-30 bg-surface dark:bg-white/[0.06] dark:backdrop-blur-xl border-b border-border dark:border-white/[0.08] no-print">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
           <div className="flex items-center gap-2.5">
             <span className="w-8 h-8 bg-primary text-white rounded-lg flex items-center justify-center text-sm font-extrabold">
@@ -207,7 +207,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-              className="icon-btn"
+              className="icon-btn hidden"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               aria-pressed={theme === 'dark'}
             >
@@ -228,7 +228,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="border-t border-border">
+        <div className="border-t border-border dark:border-white/[0.08]">
           <div className="max-w-6xl mx-auto px-4 py-1.5">
             <Stepper
               steps={STEPS}
