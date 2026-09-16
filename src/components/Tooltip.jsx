@@ -77,6 +77,12 @@ const StyledWrapper = styled.span`
     animation: tooltip-bounce 0.5s ease;
   }
 
+  @media (pointer: coarse) {
+    .tooltip {
+      display: none;
+    }
+  }
+
   @keyframes tooltip-bounce {
     0%, 100% {
       transform: translateX(-50%) translateY(0);

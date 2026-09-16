@@ -16,7 +16,7 @@ function MetricCard({ icon, label, value, formula, note, badge, highlight }) {
     : 'metric';
 
   return (
-    <article className={cls}>
+    <article className={`${cls} min-w-0`}>
       <span className="metric-label">
         <Icon d={icon} />
         {label}

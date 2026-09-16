@@ -119,7 +119,7 @@ function PatientForm({ patient, updatePatient, error }) {
         </div>
 
         {/* Height */}
-        <div className="xl:col-span-2">
+        <div className="col-span-2 xl:col-span-2">
           <label className="field-label">Height</label>
           <div className="flex gap-2">
             <div className={unitBox('heightFt')}>

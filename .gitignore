@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local QA reports
+swipe-qa-report.md
+test-results/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

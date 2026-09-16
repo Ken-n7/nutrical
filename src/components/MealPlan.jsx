@@ -159,7 +159,7 @@ function MealRow({
         {isEmpty ? (
           <span className="text-xs text-faint px-1">—</span>
         ) : (
-          <span className="text-xs text-muted px-1.5">
+          <span className="block text-xs text-muted px-1.5 leading-snug break-words" title={selectedFood?.measure || '—'}>
             {selectedFood?.measure || '—'}
           </span>
         )}
@@ -345,7 +345,7 @@ export default function MealPlan({
             : 'Drag rows to reorder. Edit # to change exchange count per row.'}
         </p>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {!isEmpty && (
             <button
               type="button"

@@ -184,7 +184,7 @@ export default function ExchangeTable({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm text-muted m-0">
             Enter the number of exchanges for each food group
@@ -193,7 +193,7 @@ export default function ExchangeTable({
             Based on FEL method: veg/fruit/milk/sugar → rice → meat → fat
           </p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
           <button
             type="button"
             onClick={suggestExchanges}

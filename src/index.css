@@ -278,7 +278,6 @@
     font-size: 0.75rem;
     font-weight: 700;
     border: 1px solid transparent;
-    white-space: nowrap;
   }
   .badge-normal {
     background: var(--color-emerald-50);
@@ -331,6 +330,8 @@
     display: flex;
     flex-direction: column;
     min-height: 140px;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .metric-label {
     font-size: 0.6875rem;
@@ -348,6 +349,7 @@
     color: var(--color-text);
     margin: 0.5rem 0;
     line-height: 1;
+    overflow-wrap: anywhere;
   }
   .metric-highlight {
     background: linear-gradient(135deg, var(--color-primary), var(--color-brand-800));
@@ -465,10 +467,10 @@
     letter-spacing: 0.05em;
     padding: 0.625rem 0.75rem;
     border-bottom: 1px solid var(--color-border);
-    white-space: nowrap;
     align-self: stretch;
     display: flex;
     align-items: center;
+    overflow-wrap: anywhere;
   }
   .fel-th.text-right {
     justify-content: flex-end;
@@ -480,6 +482,7 @@
     padding: 0.5rem 0.75rem;
     border-bottom: 1px solid var(--color-border);
     color: var(--color-text);
+    overflow-wrap: anywhere;
   }
   .fel-data-row:hover .fel-td {
     background: var(--color-bg);

@@ -27,7 +27,8 @@ export default function RecapSidebar({ patient, assessment, children }) {
   const [dragging, setDragging] = useState(false);
 
   const headerBtnRef = useRef(null);
-  const contentEl = useRef(null);
+  const sheetEl = useRef(null);
+  const headerEl = useRef(null);
   const measuredRef = useRef(false);
   const closedOffsetRef = useRef(0);
   const yRef = useRef(0);
@@ -35,25 +36,38 @@ export default function RecapSidebar({ patient, assessment, children }) {
   const dragStartRef = useRef(null);
   const justDraggedRef = useRef(false);
 
-  const contentRef = useCallback((el) => {
-    contentEl.current = el;
+  const setClosedOffset = useCallback(() => {
+    if (!sheetEl.current || !headerEl.current) return;
+    closedOffsetRef.current = Math.max(0, sheetEl.current.offsetHeight - headerEl.current.offsetHeight);
+    if (!isOpenRef.current) setY(closedOffsetRef.current);
+  }, []);
+
+  const sheetRef = useCallback((el) => {
+    sheetEl.current = el;
     if (el && !measuredRef.current) {
       measuredRef.current = true;
-      closedOffsetRef.current = el.offsetHeight;
-      setY(el.offsetHeight);
+      setClosedOffset();
     }
-  }, []);
+  }, [setClosedOffset]);
+
+  const headerRef = useCallback((el) => {
+    headerEl.current = el;
+    if (el && !measuredRef.current) {
+      measuredRef.current = true;
+      setClosedOffset();
+    }
+  }, [setClosedOffset]);
 
   const openSheet = useCallback(() => {
     setIsOpen(true);
     setY(0);
-    headerBtnRef.current?.focus();
+    headerBtnRef.current?.focus({ preventScroll: true });
   }, []);
 
   const closeSheet = useCallback(() => {
     setIsOpen(false);
     setY(closedOffsetRef.current);
-    headerBtnRef.current?.focus();
+    headerBtnRef.current?.focus({ preventScroll: true });
   }, []);
 
   useEffect(() => {
@@ -75,28 +89,29 @@ export default function RecapSidebar({ patient, assessment, children }) {
 
   useEffect(() => {
     if (!isOpen) return;
-    const prevOverflow = document.body.style.overflow;
+    const root = document.documentElement;
+    const prevBody = document.body.style.overflow;
+    const prevRoot = root.style.overflow;
+    const prevScroll = window.scrollY;
     document.body.style.overflow = 'hidden';
+    root.style.overflow = 'hidden';
+    window.scrollTo({ top: prevScroll, behavior: 'instant' });
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = prevBody;
+      root.style.overflow = prevRoot;
+      window.scrollTo({ top: prevScroll, behavior: 'instant' });
     };
   }, [isOpen]);
 
   useEffect(() => {
-    const el = contentEl.current;
-    if (!el) return;
-    const update = (h) => {
-      closedOffsetRef.current = h;
-      if (!isOpenRef.current) setY(h);
-    };
-    const ro = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      const h = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect?.height ?? el.offsetHeight;
-      update(h);
-    });
-    ro.observe(el);
+    const s = sheetEl.current;
+    const h = headerEl.current;
+    if (!s || !h) return;
+    const ro = new ResizeObserver(() => setClosedOffset());
+    ro.observe(s);
+    ro.observe(h);
     return () => ro.disconnect();
-  }, []);
+  }, [setClosedOffset]);
 
   const startDrag = (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -204,6 +219,7 @@ export default function RecapSidebar({ patient, assessment, children }) {
         />
 
         <div
+          ref={sheetRef}
           role={isOpen ? 'dialog' : undefined}
           aria-modal={isOpen || undefined}
           aria-label={isOpen ? 'Assessment summary' : undefined}
@@ -215,6 +231,7 @@ export default function RecapSidebar({ patient, assessment, children }) {
           }}
         >
           <div
+            ref={headerRef}
             className="shrink-0 select-none"
             style={{ touchAction: 'none' }}
             onPointerDown={startDrag}
@@ -258,7 +275,6 @@ export default function RecapSidebar({ patient, assessment, children }) {
 
           <div
             id="recap-content"
-            ref={contentRef}
             inert={!isOpen}
             className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-4"
           >
