@@ -16,6 +16,9 @@ dist-ssr
 swipe-qa-report.md
 test-results/
 
+# Generated release artifacts
+docs/*.pdf
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
