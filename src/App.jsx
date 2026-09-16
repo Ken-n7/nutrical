@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight, Loader2, Save } from 'lucide-react';
 import { useNutriCal, DEFAULT_DISTRIBUTION } from './hooks/useNutriCal';
 import { downloadMealPlanPdf } from './lib/mealPlanPdf';
@@ -12,6 +13,42 @@ import RecapSidebar from './components/RecapSidebar';
 import PrescriptionCompare from './components/PrescriptionCompare';
 import PlanCompare from './components/PlanCompare';
 import StarBackground from './components/StarBackground';
+import StepHeading from './components/StepHeading';
+import ConfirmDialog from './components/ConfirmDialog';
+
+const TRASH_ICON = (
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M10 11v6M14 11v6" />
+  </svg>
+);
+
+const SPARKLE_ICON = (
+  <svg
+    className="w-4 h-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+    <path d="M20 3v4" />
+    <path d="M22 5h-4" />
+  </svg>
+);
 
 const STEPS = [
   { id: 'patient', num: '1', name: 'Patient' },
@@ -58,6 +95,7 @@ export default function App() {
   const [step, setStep] = useState(0);
   const [theme, setTheme] = useState(getInitialTheme);
   const [saving, setSaving] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(null);
   const savingRef = useRef(false);
 
   const handleSave = useCallback(async () => {
@@ -144,22 +182,6 @@ export default function App() {
     >
       {children}
     </section>
-  );
-
-  const stepHeading = (idx, num, title, hint) => (
-    <div className="flex items-center gap-3 mb-4">
-      <span className="stepper-dot stepper-dot--done">{num}</span>
-      <div>
-        <h2
-          id={`step-heading-${idx}`}
-          tabIndex={-1}
-          className="text-lg font-bold text-gray-900 dark:text-white m-0 leading-tight outline-none"
-        >
-          {title}
-        </h2>
-        {hint && <p className="text-sm text-muted m-0">{hint}</p>}
-      </div>
-    </div>
   );
 
   const twoCol = (left, right) => (
@@ -277,7 +299,7 @@ export default function App() {
         {/* Step 1: Patient */}
         {section('patient', (
           <>
-            {stepHeading(0, '1', 'Patient Information', 'Enter the patient details to start the prescription.')}
+            <StepHeading idx={0} num="1" title="Patient Information" hint="Enter the patient details to start the prescription." />
             <PatientForm
               patient={patient}
               updatePatient={updatePatient}
@@ -290,7 +312,7 @@ export default function App() {
         {/* Step 2: Assessment */}
         {section('assessment', (
           <>
-            {stepHeading(1, '2', 'Energy Assessment', 'Hamwi DBW × activity factor determines the total energy requirement.')}
+            <StepHeading idx={1} num="2" title="Energy Assessment" hint="Hamwi DBW × activity factor determines the total energy requirement." />
             {twoCol(
               <RecapSidebar patient={patient} />,
               assessment && exchangeData ? (
@@ -308,7 +330,38 @@ export default function App() {
         {/* Step 3: Exchanges */}
         {section('prescription', (
           <>
-            {stepHeading(2, '3', 'Exchange Distribution', 'Enter the number of exchanges for each food group.')}
+            <StepHeading
+              idx={2}
+              num="3"
+              title="Exchange Distribution"
+              hint="Enter the number of exchanges for each food group."
+              actions={
+                assessment && exchangeData ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={suggestExchanges}
+                      className="btn btn-soft text-sm cursor-pointer"
+                      title="Auto-fill exchanges using the official FEL method"
+                    >
+                      {SPARKLE_ICON}
+                      Suggest from targets
+                    </button>
+                    {Object.values(exchanges).some((v) => v > 0) && (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmClear('exchanges')}
+                        className="btn btn-ghost text-sm cursor-pointer"
+                        title="Reset all exchange values to 0"
+                      >
+                        {TRASH_ICON}
+                        Clear all
+                      </button>
+                    )}
+                  </>
+                ) : undefined
+              }
+            />
             {assessment && exchangeData ? (
               twoCol(
                 <RecapSidebar patient={patient} assessment={assessment}>
@@ -319,14 +372,27 @@ export default function App() {
                   updateExchange={updateExchange}
                   exchangeData={exchangeData}
                   assessment={assessment}
-                  suggestExchanges={suggestExchanges}
-                  clearExchanges={clearExchanges}
                 />
               )
             ) : (
               <div className="empty-state">Assessment results are required before entering exchanges.</div>
             )}
             {nav(1, 3, 'Continue to Meal Plan')}
+            <AnimatePresence>
+              {confirmClear === 'exchanges' && (
+                <ConfirmDialog
+                  title="Clear all exchanges?"
+                  description="This will reset every food group to 0. This action cannot be undone."
+                  confirmLabel="Clear all"
+                  icon={TRASH_ICON}
+                  onCancel={() => setConfirmClear(null)}
+                  onConfirm={() => {
+                    clearExchanges();
+                    setConfirmClear(null);
+                  }}
+                />
+              )}
+            </AnimatePresence>
           </>
         ))}
 
@@ -334,7 +400,38 @@ export default function App() {
         {section('meal-plan', (
           <>
             <div className="meal-plan-screen">
-              {stepHeading(3, '4', 'One-Day Meal Plan', 'Distribute exchanges across meals.')}
+              <StepHeading
+                idx={3}
+                num="4"
+                title="One-Day Meal Plan"
+                hint="Distribute exchanges across meals."
+                actions={
+                  <>
+                    {Object.values(exchanges).some((v) => v > 0) && (
+                      <button
+                        type="button"
+                        onClick={generatePlan}
+                        className="btn btn-soft text-sm cursor-pointer"
+                        title="Auto-distribute exchanges across the five meals"
+                      >
+                        {SPARKLE_ICON}
+                        Generate Plan
+                      </button>
+                    )}
+                    {Object.values(mealPlan).some((rows) => rows.length > 0) && (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmClear('meal-plan')}
+                        className="btn btn-ghost text-sm cursor-pointer"
+                        title="Remove all meal rows"
+                      >
+                        {TRASH_ICON}
+                        Clear all
+                      </button>
+                    )}
+                  </>
+                }
+              />
               {twoCol(
                 <RecapSidebar patient={patient} assessment={assessment}>
                   <PrescriptionCompare exchangeData={exchangeData} assessment={assessment} />
@@ -346,14 +443,26 @@ export default function App() {
                   removeMealRow={removeMealRow}
                   updateMealRow={updateMealRow}
                   moveMealRow={moveMealRow}
-                  generatePlan={generatePlan}
-                  clearMealPlan={clearMealPlan}
-                  exchanges={exchanges}
                   mealPlanValidation={mealPlanValidation}
                 />
               )}
               {nav(2, null)}
             </div>
+            <AnimatePresence>
+              {confirmClear === 'meal-plan' && (
+                <ConfirmDialog
+                  title="Clear all meals?"
+                  description="This will remove every row from all five meals. This action cannot be undone."
+                  confirmLabel="Clear all"
+                  icon={TRASH_ICON}
+                  onCancel={() => setConfirmClear(null)}
+                  onConfirm={() => {
+                    clearMealPlan();
+                    setConfirmClear(null);
+                  }}
+                />
+              )}
+            </AnimatePresence>
           </>
         ))}
       </main>

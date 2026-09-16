@@ -1,24 +1,5 @@
 import { useCallback, useState } from 'react';
-import { AnimatePresence } from 'motion/react';
 import { fmt1, fmtInt, fmtValue, EXCHANGE_MAX } from '../hooks/useNutriCal';
-import ConfirmDialog from './ConfirmDialog';
-
-const TRASH_ICON = (
-  <svg
-    className="w-5 h-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M3 6h18" />
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    <path d="M10 11v6M14 11v6" />
-  </svg>
-);
 
 const DEFAULT_OPEN = { basic: true, rice: true, meat: true, fat: true };
 
@@ -139,11 +120,8 @@ export default function ExchangeTable({
   updateExchange,
   exchangeData,
   assessment,
-  suggestExchanges,
-  clearExchanges,
 }) {
   const [open, setOpen] = useState({ ...DEFAULT_OPEN });
-  const [confirmingClear, setConfirmingClear] = useState(false);
   const toggleSection = (key) => setOpen((o) => ({ ...o, [key]: !o[key] }));
 
   if (!exchangeData || !assessment) return null;
@@ -183,43 +161,6 @@ export default function ExchangeTable({
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-end gap-3">
-        <button
-          type="button"
-          onClick={suggestExchanges}
-          className="btn btn-soft text-sm cursor-pointer"
-          title="Auto-fill exchanges using the official FEL method"
-        >
-          <svg
-            className="w-4 h-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
-            <path d="M20 3v4" />
-            <path d="M22 5h-4" />
-          </svg>
-          Suggest from targets
-        </button>
-        {clearExchanges && (
-          <button
-            type="button"
-            onClick={() => setConfirmingClear(true)}
-            className="btn btn-ghost text-sm cursor-pointer"
-            title="Reset all exchange values to 0"
-          >
-            {TRASH_ICON}
-            Clear all
-          </button>
-        )}
-      </div>
-
       {/* Main Table */}
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
@@ -415,22 +356,6 @@ export default function ExchangeTable({
           Values are rounded to whole exchanges. Maximum {EXCHANGE_MAX} per group.
         </p>
       </div>
-
-      <AnimatePresence>
-        {confirmingClear && (
-          <ConfirmDialog
-            title="Clear all exchanges?"
-            description="This will reset every food group to 0. This action cannot be undone."
-            confirmLabel="Clear all"
-            icon={TRASH_ICON}
-            onCancel={() => setConfirmingClear(false)}
-            onConfirm={() => {
-              clearExchanges?.();
-              setConfirmingClear(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

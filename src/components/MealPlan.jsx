@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react';
-import { AnimatePresence } from 'motion/react';
 import {
   FOOD_ITEMS,
   MEAL_PERIODS,
@@ -7,24 +6,6 @@ import {
   GROUP_KEYS,
 } from '../data/mealPlanData';
 import { EXCHANGE_MAX } from '../hooks/useNutriCal';
-import ConfirmDialog from './ConfirmDialog';
-
-const TRASH_ICON = (
-  <svg
-    className="w-5 h-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M3 6h18" />
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    <path d="M10 11v6M14 11v6" />
-  </svg>
-);
 
 function MealRow({
   item,
@@ -324,57 +305,12 @@ export default function MealPlan({
   removeMealRow,
   updateMealRow,
   moveMealRow,
-  generatePlan,
-  clearMealPlan,
-  exchanges,
   mealPlanValidation,
 }) {
-  const [confirmingClear, setConfirmingClear] = useState(false);
-
   if (!mealPlan || !mealPlanValidation) return null;
-
-  const hasExchanges = exchanges && Object.values(exchanges).some((v) => v > 0);
-  const isEmpty = Object.values(mealPlan).every((rows) => rows.length === 0);
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-          {hasExchanges && (
-            <button
-              type="button"
-              onClick={generatePlan}
-              className="btn btn-soft text-sm cursor-pointer"
-              title="Auto-distribute exchanges across the five meals"
-            >
-              <svg
-                className="w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
-                <path d="M20 3v4" />
-                <path d="M22 5h-4" />
-              </svg>
-              Generate Plan
-            </button>
-          )}
-          {!isEmpty && (
-            <button
-              type="button"
-              onClick={() => setConfirmingClear(true)}
-              className="btn btn-ghost text-sm cursor-pointer"
-              title="Remove all meal rows"
-            >
-              {TRASH_ICON}
-              Clear all
-            </button>
-          )}
-      </div>
 
       <div className="flex flex-col gap-4">
         {MEAL_PERIODS.map(({ key, label }) => (
@@ -391,22 +327,6 @@ export default function MealPlan({
           />
         ))}
       </div>
-
-      <AnimatePresence>
-        {confirmingClear && (
-          <ConfirmDialog
-            title="Clear all meals?"
-            description="This will remove every row from all five meals. This action cannot be undone."
-            confirmLabel="Clear all"
-            icon={TRASH_ICON}
-            onCancel={() => setConfirmingClear(false)}
-            onConfirm={() => {
-              clearMealPlan?.();
-              setConfirmingClear(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
