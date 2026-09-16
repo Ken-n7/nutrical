@@ -184,52 +184,40 @@ export default function ExchangeTable({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm text-muted m-0">
-            Enter the number of exchanges for each food group
-          </p>
-          <p className="text-xs text-muted m-0 mt-0.5">
-            Based on FEL method: veg/fruit/milk/sugar → rice → meat → fat
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={suggestExchanges}
+          className="btn btn-soft text-sm cursor-pointer"
+          title="Auto-fill exchanges using the official FEL method"
+        >
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+            <path d="M20 3v4" />
+            <path d="M22 5h-4" />
+          </svg>
+          Suggest from targets
+        </button>
+        {clearExchanges && (
           <button
             type="button"
-            onClick={suggestExchanges}
-            className="btn btn-soft text-sm cursor-pointer"
-            title="Auto-fill exchanges using the official FEL method"
+            onClick={() => setConfirmingClear(true)}
+            className="btn btn-ghost text-sm cursor-pointer"
+            title="Reset all exchange values to 0"
           >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
-              <path d="M20 3v4" />
-              <path d="M22 5h-4" />
-            </svg>
-            Suggest from targets
+            {TRASH_ICON}
+            Clear all
           </button>
-          <button
-              type="button"
-              onClick={clearExchanges ? () => setConfirmingClear(true) : undefined}
-              className="btn btn-ghost text-sm cursor-pointer"
-              title="Reset all exchange values to 0"
-            >
-              {TRASH_ICON}
-              Clear all
-            </button>
-          <span className="badge badge-info">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
-            Nutritionist Input
-          </span>
-        </div>
+        )}
       </div>
 
       {/* Main Table */}

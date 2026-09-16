@@ -338,25 +338,7 @@ export default function MealPlan({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
-        <p className="text-sm text-muted m-0">
-          {isEmpty
-            ? 'Enter exchanges in step 3, then generate a meal plan.'
-            : 'Drag rows to reorder. Edit # to change exchange count per row.'}
-        </p>
-
-        <div className="flex flex-wrap items-center gap-3">
-          {!isEmpty && (
-            <button
-              type="button"
-              onClick={() => setConfirmingClear(true)}
-              className="btn btn-ghost text-sm cursor-pointer"
-              title="Remove all meal rows"
-            >
-              {TRASH_ICON}
-              Clear all
-            </button>
-          )}
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           {hasExchanges && (
             <button
               type="button"
@@ -382,13 +364,16 @@ export default function MealPlan({
             </button>
           )}
           {!isEmpty && (
-            <span
-              className={`badge ${mealPlanValidation.allValid ? 'badge-normal' : 'badge-warning'}`}
+            <button
+              type="button"
+              onClick={() => setConfirmingClear(true)}
+              className="btn btn-ghost text-sm cursor-pointer"
+              title="Remove all meal rows"
             >
-              {mealPlanValidation.allValid ? 'Within limits' : 'Over limit'}
-            </span>
+              {TRASH_ICON}
+              Clear all
+            </button>
           )}
-        </div>
       </div>
 
       <div className="flex flex-col gap-4">

@@ -1,19 +1,25 @@
 import { GROUP_KEYS, GROUP_LABELS } from '../data/mealPlanData';
+import { MovingBorderOutline } from './ui/moving-border';
+import { OkBadge, WarnBadge } from './CompareBadges';
 
 export default function PlanCompare({ validation, exchanges }) {
   if (!validation?.groups) return null;
-  const { groups } = validation;
+  const { groups, allValid } = validation;
   const entries = GROUP_KEYS.filter(
     (g) => (exchanges[g] || 0) > 0 || (groups[g]?.mealTotal || 0) > 0
   );
 
   if (entries.length === 0) return null;
 
-  return (
-    <div className="card p-4 space-y-3">
-      <h3 className="text-[11px] font-bold text-muted uppercase tracking-wide m-0">
-        Distribution vs Meal Plan
-      </h3>
+  const content = (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-[11px] font-bold text-muted uppercase tracking-wide m-0">
+          Distribution vs Meal Plan
+        </h3>
+        {allValid ? <OkBadge /> : <WarnBadge />}
+      </div>
+
       <div className="divide-y divide-border">
         {entries.map((g) => {
           const { exchangeTotal, mealTotal, over } = groups[g];
@@ -40,6 +46,24 @@ export default function PlanCompare({ validation, exchanges }) {
           );
         })}
       </div>
+    </>
+  );
+
+  if (allValid) {
+    return (
+      <div className="card p-4 space-y-3" aria-live="polite">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="card p-4 space-y-3 fel-cmp-warn relative"
+      aria-live="polite"
+    >
+      <MovingBorderOutline duration={4500} />
+      <div className="relative">{content}</div>
     </div>
   );
 }

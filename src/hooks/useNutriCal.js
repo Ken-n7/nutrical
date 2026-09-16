@@ -442,7 +442,7 @@ export function useNutriCal() {
       const under = mealTotal < exchangeTotal && exchangeTotal > 0;
       const valid = Math.abs(diff) < 0.001;
 
-      if (over) allValid = false;
+      if (!valid) allValid = false;
 
       result[group] = { exchangeTotal, mealTotal, diff, valid, over, under };
     }
