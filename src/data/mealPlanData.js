@@ -4,31 +4,52 @@
 // (page numbers are the book's printed ones). Unmarked groups are still the old
 // sample lists, waiting to be replaced the same way.
 // ======================
+const FRESH_VEG = { category: 'Fresh Vegetables', measure: '½ cup raw or cooked' };
+
 export const FOOD_ITEMS = {
+  // FEL pp. 19–20, Vegetable exchange (3 g carbohydrate, 1 g protein, 16 kcal). A selection.
+  // Fresh vegetables share one measure (Table 2.2): ½ cup raw (40 g) or ½ cup cooked (45 g).
+  // Vegetables on the book's free list (p. 21: kangkong, pechay, tomato, eggplant,
+  // cabbage, bell pepper, unripe papaya, okra…) are not exchanges and are left out.
   veg: [
-    { name: 'Malunggay leaves', measure: '1 cup' },
-    { name: 'Kangkong', measure: '1 cup' },
-    { name: 'Sitaw (string beans)', measure: '½ cup' },
-    { name: 'Squash', measure: '½ cup' },
-    { name: 'Eggplant', measure: '½ cup' },
-    { name: 'Tomato', measure: '½ cup' },
-    { name: 'Cabbage', measure: '½ cup' },
-    { name: 'Bell pepper', measure: '½ cup' },
-    { name: 'Papaya, unripe', measure: '½ cup' },
-    { name: 'Pechay', measure: '1 cup' },
+    { ...FRESH_VEG, filipino: 'Malunggay, dahon', name: 'Horseradish tree, leaves' },
+    { ...FRESH_VEG, filipino: 'Sitaw, bunga', name: 'String/yard long bean, pod' },
+    { ...FRESH_VEG, filipino: 'Kalabasa, bunga', name: 'Squash, fruit' },
+    { ...FRESH_VEG, filipino: 'Kalabasa, dahon', name: 'Squash, leaves' },
+    { ...FRESH_VEG, filipino: 'Carrot', name: 'Carrot' },
+    { ...FRESH_VEG, filipino: 'Broccoli', name: 'Broccoli' },
+    { ...FRESH_VEG, filipino: 'Kabuti, sariwa', name: 'Mushroom, fresh' },
+    { ...FRESH_VEG, filipino: 'Sibuyas, ulo (Bombay, Tagalog)', name: 'Onion bulb (Bombay, Tagalog)' },
+    { ...FRESH_VEG, filipino: 'Toge', name: 'Mung bean sprout' },
+    { ...FRESH_VEG, filipino: 'Saluyot, dahon', name: 'Jute, leaves' },
+    { ...FRESH_VEG, filipino: 'Langka, hilaw', name: 'Jackfruit, unripe' },
+    { ...FRESH_VEG, filipino: 'Ampalaya, dahon', name: 'Bittermelon/gourd, leaves' },
+    { ...FRESH_VEG, filipino: 'Sitsaro', name: 'Snow/Sugar pea, pod' },
+    { category: 'Processed Vegetables', filipino: 'Mais, mura, de lata', name: 'Baby corn/young corn, cnd', weight: 75, measure: '2 pcs (8 × 1.5 cm)' },
+    { category: 'Processed Vegetables', filipino: 'Gisantes (de lata, frozen)', name: 'Green peas (cnd, frozen)', weight: 25, measure: '1 Tbsp' },
+    { category: 'Processed Vegetables', filipino: 'Mixed vegetables (carrot, peas and corn), frozen', name: 'Mixed vegetables (carrot, peas and corn), frozen', weight: 25, measure: '2 Tbsp' },
+    { category: 'Processed Vegetables', filipino: 'Kabuti, de lata', name: 'Mushroom (whole, sliced), cnd', weight: 110, measure: '¾ cup' },
+    { category: 'Processed Vegetables', filipino: 'Kamatis, de lata', name: 'Tomato, cnd', weight: 50, measure: '3 Tbsp' },
   ],
 
+  // FEL pp. 24–27, Fruit exchange (10 g carbohydrate, 40 kcal). A selection.
+  // weight is grams of edible portion; (AP) dimensions are of the whole fruit as purchased.
   fruit: [
-    { name: 'Banana, Lacatan', measure: '1 pc' },
-    { name: 'Banana, Saba', measure: '1 pc' },
-    { name: 'Mango, ripe', measure: '1 slice' },
-    { name: 'Papaya, ripe', measure: '1 cup' },
-    { name: 'Watermelon', measure: '1 cup' },
-    { name: 'Apple', measure: '1 pc' },
-    { name: 'Orange', measure: '1 pc' },
-    { name: 'Pineapple', measure: '1 cup' },
-    { name: 'Guava', measure: '1 pc' },
-    { name: 'Coconut water', measure: '1 glass' },
+    { category: 'Fresh Fruits', filipino: 'Saging, lakatan', name: 'Banana, lacatan', weight: 40, measure: '½ pc', dimension: '14 × 3.5 cm (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Saging, latundan', name: 'Banana, latundan', weight: 40, measure: '½ pc', dimension: '12.5 × 3 cm (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Saging, saba', name: 'Banana, saba', weight: 40, measure: '½ pc', dimension: '12 × 4.5 cm (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Mangga, kalabaw, hinog', name: 'Mango, Manila super, ripe', weight: 70, measure: '½ cup or 1 slice', dimension: '8 × 7 cm' },
+    { category: 'Fresh Fruits', filipino: 'Pakwan', name: 'Watermelon', weight: 150, measure: '1 cup or 1 slice', dimension: '11.5 × 2.5 × 9 cm' },
+    { category: 'Fresh Fruits', filipino: 'Papaya, hinog', name: 'Papaya, ripe', weight: 90, measure: '¾ cup or 1 slice', dimension: '16 × 4.5 × 2 cm' },
+    { category: 'Fresh Fruits', filipino: 'Pinya', name: 'Pineapple', weight: 80, measure: '½ cup or 1 slice', dimension: '14.5 × 2.5 × 4.5 cm' },
+    { category: 'Fresh Fruits', filipino: 'Mansanas, pula', name: 'Apple, red', weight: 75, measure: '1 pc', dimension: '6 cm diameter (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Orange, ponkan', name: 'Orange, ponkan', weight: 80, measure: '1 pc', dimension: '7 cm diameter (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Dalandan (Ladu/Szinkom)', name: 'Orange (Ladu/Szinkom)', weight: 155, measure: '3 pcs', dimension: '6 cm diameter each (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Bayabas, puti', name: 'Guava, white', weight: 80, measure: '3 pcs', dimension: '3.5 cm diameter each (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Lansones', name: 'Lanzon', weight: 80, measure: '5 pcs', dimension: '3 × 3 cm each (AP)' },
+    { category: 'Fresh Fruits', filipino: 'Ubas', name: 'Grapes', weight: 55, measure: '5 pcs or 12 pcs', dimension: '2.5 cm, or 2 cm, diameter each' },
+    { category: 'Fresh Juices', filipino: 'Niyog, tubig', name: 'Coconut water', volume: 240, measure: '1 cup' },
+    { category: 'Processed Fruits', filipino: 'Raisins', name: 'Raisins', weight: 15, measure: '2 Tbsp' },
   ],
 
   // FEL p. 30, Milk exchange. The full list. One exchange has 12 g carbohydrate and
@@ -217,6 +238,8 @@ export const FOOD_MEASURE_MAX = 40;
 // Food used by "+ Add" and "Generate Plan", by English name: the book's sample
 // menu choice (Table 1.7) where it has one. Groups not listed use their first food.
 export const DEFAULT_FOOD = {
+  veg: 'Horseradish tree, leaves',
+  fruit: 'Banana, lacatan',
   riceA: 'Sweet potato (yellow, purple, white)',
   milkWhole: 'Milk, powder, full cream',
   milkSkim: 'Milk, skim',
