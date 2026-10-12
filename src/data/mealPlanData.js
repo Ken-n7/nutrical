@@ -1,8 +1,9 @@
 // ======================
 // FOOD ITEMS
-// Lists marked "FEL p. …" are transcribed from the FNRI Food Exchange Lists
-// (page numbers are the book's printed ones). Unmarked groups are still the old
-// sample lists, waiting to be replaced the same way.
+// Every list is transcribed from the FNRI Food Exchange Lists for Meal Planning;
+// "FEL p. …" gives the book's printed page. Most groups hold a selection, so
+// more rows can be added from the same pages at any time. The book's "cnd" is
+// spelled out as "canned".
 // ======================
 const FRESH_VEG = { category: 'Fresh Vegetables', measure: '½ cup raw or cooked' };
 
@@ -25,11 +26,11 @@ export const FOOD_ITEMS = {
     { ...FRESH_VEG, filipino: 'Langka, hilaw', name: 'Jackfruit, unripe' },
     { ...FRESH_VEG, filipino: 'Ampalaya, dahon', name: 'Bittermelon/gourd, leaves' },
     { ...FRESH_VEG, filipino: 'Sitsaro', name: 'Snow/Sugar pea, pod' },
-    { category: 'Processed Vegetables', filipino: 'Mais, mura, de lata', name: 'Baby corn/young corn, cnd', weight: 75, measure: '2 pcs (8 × 1.5 cm)' },
-    { category: 'Processed Vegetables', filipino: 'Gisantes (de lata, frozen)', name: 'Green peas (cnd, frozen)', weight: 25, measure: '1 Tbsp' },
+    { category: 'Processed Vegetables', filipino: 'Mais, mura, de lata', name: 'Baby corn/young corn, canned', weight: 75, measure: '2 pcs (8 × 1.5 cm)' },
+    { category: 'Processed Vegetables', filipino: 'Gisantes (de lata, frozen)', name: 'Green peas (canned, frozen)', weight: 25, measure: '1 Tbsp' },
     { category: 'Processed Vegetables', filipino: 'Mixed vegetables (carrot, peas and corn), frozen', name: 'Mixed vegetables (carrot, peas and corn), frozen', weight: 25, measure: '2 Tbsp' },
-    { category: 'Processed Vegetables', filipino: 'Kabuti, de lata', name: 'Mushroom (whole, sliced), cnd', weight: 110, measure: '¾ cup' },
-    { category: 'Processed Vegetables', filipino: 'Kamatis, de lata', name: 'Tomato, cnd', weight: 50, measure: '3 Tbsp' },
+    { category: 'Processed Vegetables', filipino: 'Kabuti, de lata', name: 'Mushroom (whole, sliced), canned', weight: 110, measure: '¾ cup' },
+    { category: 'Processed Vegetables', filipino: 'Kamatis, de lata', name: 'Tomato, canned', weight: 50, measure: '3 Tbsp' },
   ],
 
   // FEL pp. 24–27, Fruit exchange (10 g carbohydrate, 40 kcal). A selection.
@@ -136,7 +137,7 @@ export const FOOD_ITEMS = {
     { category: 'Bakery Products', filipino: 'Marie', name: 'Cookies, marie', weight: 25, measure: '8 pcs', dimension: '6 cm diameter × 0.5 cm each' },
     { category: 'Bakery Products', filipino: 'Sponge cake', name: 'Cake, sponge', weight: 35, measure: '1 slice', dimension: '7.5 × 4 × 4 cm' },
     { category: 'Corn and corn products', filipino: 'Corn flakes', name: 'Corn flakes', weight: 25, measure: '½ cup' },
-    { category: 'Corn and corn products', filipino: 'Mais butil, de lata', name: 'Corn, whole kernel, cnd', weight: 160, measure: '1 cup' },
+    { category: 'Corn and corn products', filipino: 'Mais butil, de lata', name: 'Corn, whole kernel, canned', weight: 160, measure: '1 cup' },
     { category: 'Corn and corn products', filipino: 'Mais sa busal (dilaw, puti)', name: 'Corn on cob (yellow, white)', weight: 65, measure: '½ pc', dimension: '12.5 × 4 cm (AP)' },
     { category: 'Rootcrop', filipino: 'Patatas', name: 'Potato', weight: 170, measure: '1 pc or 1¼ cup, cubed', dimension: '6 cm diameter × 8 cm' },
   ],
@@ -155,29 +156,60 @@ export const FOOD_ITEMS = {
     { category: 'Others', filipino: 'Balat ng lumpia', name: 'Spring roll wrapper, plain', weight: 35, measure: '7 pcs', dimension: '16.5 cm diameter each' },
   ],
 
+  // FEL pp. 40–47, Meat exchanges (8 g protein). A selection. Weights are cooked edible portion.
+  // The book lists cuts under an animal heading ("Beef: Laman – Lean meat"); here the
+  // animal is written into the name, and "mbs" is spelled out as matchbox size.
+  // Low fat: 1 g fat, 41 kcal.
   meatLow: [
-    { name: 'Fish, steamed/broiled', measure: '1 slice (30–40g)' },
-    { name: 'Bangus, broiled', measure: '1 slice' },
-    { name: 'Shrimp, boiled', measure: '4–5 pcs' },
-    { name: 'Squid, grilled', measure: '1 serving' },
-    { name: 'Tofu, firm', measure: '¾–1 cup' },
-    { name: 'Egg white only', measure: '2 pcs' },
+    { category: 'Fish', filipino: 'Bangus', name: 'Milkfish', weight: 35, measure: '1 slice', dimension: '4.5 × 6 × 1.5 cm' },
+    { category: 'Fish', filipino: 'Galunggong', name: 'Scad, round', weight: 35, measure: '1 pc', dimension: '13 × 3 cm' },
+    { category: 'Fish', filipino: 'Tilapia', name: 'Tilapia', weight: 35, measure: '½ slice', dimension: '15.5 × 6 cm' },
+    { category: 'Fish', filipino: 'Tulingan', name: 'Tuna, frigate/bullet', weight: 35, measure: '½ slice', dimension: '9 × 6 × 1.5 cm' },
+    { category: 'Fish', filipino: 'Dilis, buo', name: 'Anchovy, long-jawed, whole', weight: 35, measure: '⅓ cup' },
+    { category: 'Lean Meat', filipino: 'Baka, laman', name: 'Beef, lean meat', weight: 35, measure: '1 slice, matchbox size', dimension: '5 × 3.5 × 2 cm' },
+    { category: 'Lean Meat', filipino: 'Baboy, lomo', name: 'Pork, tenderloin', weight: 35, measure: '1 slice, matchbox size', dimension: '5 × 3.5 × 2 cm' },
+    { category: 'Lean Meat', filipino: 'Manok, pitso', name: 'Chicken, breast', weight: 30, measure: '1 slice', dimension: '5 × 3 × 1.5 cm' },
+    { category: 'Variety meats/Internal organs', filipino: 'Atay', name: 'Liver (pork, beef, carabeef, chicken)', weight: 30, measure: '¼ cup or 1 pc' },
+    { category: 'Other Seafoods', filipino: 'Pusit', name: 'Squid', weight: 50, measure: '2 pcs', dimension: '11 × 3 cm each' },
+    { category: 'Other Seafoods', filipino: 'Hipon, suwahe', name: 'Shrimp, greasy back', weight: 40, measure: '4 pcs', dimension: '16 cm each (AP)' },
+    { category: 'Other Seafoods', filipino: 'Alimasag, laman', name: 'Crab, blue swimming, meat', weight: 40, measure: '⅓ cup or 1 pc', dimension: '9 × 5 cm' },
+    { category: 'Processed Foods', filipino: 'Tuna flakes, in brine', name: 'Tuna flakes, in brine', weight: 45, measure: '¼ cup' },
+    { category: 'Processed Foods', filipino: 'Tamban, tuyo', name: 'Sardine, Indian, dried', weight: 20, measure: '2 pcs', dimension: '10.5 × 3 cm each' },
+    { category: 'Processed Foods', filipino: 'Galunggong, tinapa', name: 'Scad, round, smoked', weight: 25, measure: '½ pc', dimension: '15.5 × 3.5 cm' },
   ],
 
+  // Medium fat: 6 g fat, 86 kcal.
   meatMed: [
-    { name: 'Chicken, without skin', measure: '1 pc (leg/thigh)' },
-    { name: 'Pork, lean, boiled', measure: '1 slice' },
-    { name: 'Beef, lean, boiled', measure: '1 slice' },
-    { name: 'Egg, whole', measure: '1 pc' },
-    { name: 'Tuna, canned in water', measure: '½ cup' },
+    { category: 'Chicken', filipino: 'Manok, binti', name: 'Chicken, leg/drumstick', weight: 35, measure: '1 pc', dimension: '11 × 4 cm' },
+    { category: 'Chicken', filipino: 'Manok, hita', name: 'Chicken, thigh', weight: 35, measure: '1 pc', dimension: '11.5 × 4 cm' },
+    { category: 'Chicken', filipino: 'Manok, pakpak', name: 'Chicken, wing', weight: 35, measure: '1 pc' },
+    { category: 'Egg', filipino: 'Itlog ng manok, buo', name: 'Egg, chicken, whole', weight: 55, measure: '1 pc medium', dimension: '4.5 cm diameter × 5.5 cm' },
+    { category: 'Egg', filipino: 'Itlog ng pugo', name: 'Egg, quail', weight: 55, measure: '7 pcs small' },
+    { category: 'Beef and Pork', filipino: 'Baka, paypay, laman', name: 'Beef, chuck, lean', weight: 35, measure: '1 slice, matchbox size', dimension: '5 × 3.5 × 2 cm' },
+    { category: 'Beef and Pork', filipino: 'Baboy, pata', name: 'Pork, leg', weight: 35, measure: '1 slice, matchbox size', dimension: '5 × 3.5 × 2 cm' },
+    { category: 'Processed Foods', filipino: 'Cheddar, pasteurized, processed', name: 'Cheese, cheddar, pasteurized, processed', weight: 30, measure: '1 slice', dimension: '5.5 × 2.5 × 2 cm' },
+    { category: 'Processed Foods', filipino: 'Bangus, tinapa', name: 'Milkfish, smoked', weight: 30, measure: '1 slice' },
+    { category: 'Processed Foods', filipino: 'Sardinas sa tomato sauce', name: 'Sardines, in tomato sauce', weight: 80, measure: '2 pcs', dimension: '5.5 × 3.5 cm each' },
+    { category: 'Processed Foods', filipino: 'Karne norte, de lata', name: 'Corned beef, canned', weight: 45, measure: '¼ cup' },
+    { category: 'Processed Foods', filipino: 'Sausage, ham', name: 'Sausage, ham', weight: 55, measure: '2 pcs', dimension: '9 × 0.3 cm each' },
+    { category: 'Processed Foods', filipino: 'Tofu', name: 'Soy bean curd, tofu', weight: 100, measure: '½ cup', dimension: '8.5 × 3.5 × 3 cm' },
+    { category: 'Processed Foods', filipino: 'Tokwa', name: 'Soy bean curd, tokwa', weight: 70, measure: '1 pc', dimension: '5 × 5.5 × 2 cm' },
   ],
 
+  // High fat: 10 g fat, 122 kcal.
   meatHigh: [
-    { name: 'Pork liempo', measure: '1 slice' },
-    { name: 'Chicken with skin, fried', measure: '1 pc' },
-    { name: 'Beef, fatty cut', measure: '1 slice' },
-    { name: 'Sardines in oil', measure: '½ can' },
-    { name: 'Corned beef', measure: '¼ cup' },
+    { category: 'Pork and Beef', filipino: 'Baboy, liempo, malaman', name: 'Pork, belly, less fat', weight: 35, measure: '1 slice', dimension: '6.5 × 3.5 × 1 cm' },
+    { category: 'Pork and Beef', filipino: 'Baboy, kasim', name: 'Pork, picnic', weight: 35, measure: '1 slice, matchbox size', dimension: '5 × 3.5 × 2 cm' },
+    { category: 'Pork and Beef', filipino: 'Baboy, tadyang', name: 'Pork, spare rib', weight: 35, measure: '1 slice', dimension: '3.5 × 3.5 × 3 cm' },
+    { category: 'Pork and Beef', filipino: 'Baka, tadyang', name: 'Beef, plate', weight: 35, measure: '1 slice, matchbox size', dimension: '5 × 3.5 × 2 cm' },
+    { category: 'Egg', filipino: 'Balut', name: 'Egg, duck, fertilized', weight: 65, measure: '1 pc', dimension: '5.5 × 4.5 cm' },
+    { category: 'Egg', filipino: 'Itlog ng pato, buo', name: 'Egg, duck, whole', weight: 65, measure: '1 pc', dimension: '5.5 × 4.5 cm' },
+    { category: 'Nuts/Bean', filipino: 'Mani, may balok, binusa', name: 'Peanut w/ skin, roasted', weight: 20, measure: '2 Tbsp' },
+    { category: 'Processed Foods', filipino: 'Keso de bola', name: 'Cheese, Edam', weight: 35, measure: '1 slice', dimension: '3 × 6 × 2.5 cm' },
+    { category: 'Processed Foods', filipino: 'Sardinas, Spanish style', name: 'Sardines, in spiced oil', weight: 30, measure: '3 pcs', dimension: '5.5 × 2 × 1.5 cm each' },
+    { category: 'Processed Foods', filipino: 'Tuna flakes in vegetable oil', name: 'Tuna flakes in vegetable oil', weight: 45, measure: '¼ cup' },
+    { category: 'Processed Foods', filipino: 'Longanisa, chorizo', name: 'Sausage, chorizo', weight: 30, measure: '1 pc', dimension: '2 cm diameter × 8 cm' },
+    { category: 'Processed Foods', filipino: 'Sausage, frankfurter', name: 'Sausage, frankfurter', weight: 60, measure: '1½ pc', dimension: '2 cm diameter × 11 cm' },
   ],
 
   // FEL pp. 50–51, Fat exchange (5 g fat, 45 kcal). A selection.
@@ -246,6 +278,9 @@ export const DEFAULT_FOOD = {
   sugar: 'Sugar (muscovado, brown, white)',
   riceB: 'Rice, well-milled, boiled',
   riceC: 'Bread, pan de sal',
+  meatLow: 'Milkfish',
+  meatMed: 'Chicken, leg/drumstick',
+  meatHigh: 'Pork, belly, less fat',
   fat: 'Oil, coconut',
 };
 
