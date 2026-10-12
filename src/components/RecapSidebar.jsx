@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useId } from 'react';
 import { ClipboardList, X, ChevronUp } from 'lucide-react';
 import { fmt1, ACTIVITY_LEVELS } from '../hooks/useNutriCal';
 
@@ -22,6 +22,7 @@ function BlockTitle({ children }) {
 }
 
 export default function RecapSidebar({ patient, assessment, children }) {
+  const contentId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const [y, setY] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -244,7 +245,7 @@ export default function RecapSidebar({ patient, assessment, children }) {
                 onClick={handleToggle}
                 className="flex items-center gap-2 flex-1 min-w-0 text-left cursor-pointer bg-transparent border-0 p-0"
                 aria-expanded={isOpen}
-                aria-controls="recap-content"
+                aria-controls={contentId}
               >
                 <span className="w-7 h-7 bg-primary text-white rounded-lg flex items-center justify-center shrink-0">
                   <ClipboardList size={15} aria-hidden="true" />
@@ -271,9 +272,9 @@ export default function RecapSidebar({ patient, assessment, children }) {
           </div>
 
           <div
-            id="recap-content"
+            id={contentId}
             inert={!isOpen}
-            className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-4"
+            className="recap-content flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-4"
           >
             {summary}
           </div>

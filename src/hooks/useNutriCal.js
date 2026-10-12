@@ -32,6 +32,7 @@ const roundN = (n) => {
   return Math.round(n);
 };
 const EXCHANGE_MAX = 20;
+const LB_PER_KG = 2.2;
 const DEFAULT_DISTRIBUTION = '65,15,20';
 const snapExchange = (n) => Math.min(EXCHANGE_MAX, roundN(n));
 
@@ -78,10 +79,10 @@ function dbwHamwi(sex, totalInches, frame) {
   const base = sex === 'male' ? 106 : 100;
   const perInch = sex === 'male' ? 6 : 5;
   const baseAdjustedLbs = base + inchesFromFiveFeet * perInch;
-  const frameAdjustedKg = Math.round((baseAdjustedLbs / 2.2) * frame);
+  const frameAdjustedKg = Math.round((baseAdjustedLbs / LB_PER_KG) * frame);
   const direction = inchesFromFiveFeet >= 0 ? '+' : '−';
   const absInches = Math.abs(inchesFromFiveFeet);
-  const formula = `${base} ${direction} (${absInches} × ${perInch}) lb ÷ 2.2${frame !== 1 ? ` × ${frame.toFixed(2)}` : ''}`;
+  const formula = `${base} ${direction} (${absInches} × ${perInch}) lb ÷ ${LB_PER_KG}${frame !== 1 ? ` × ${frame.toFixed(2)}` : ''}`;
   return { lbs: baseAdjustedLbs * frame, kg: frameAdjustedKg, formula };
 }
 
@@ -239,7 +240,7 @@ export function useNutriCal() {
         if (r.id !== rowId) return r;
 
         if (field === 'group') {
-          return { ...r, group: value, foodIndex: 0, measureIndex: 0 };
+          return { ...r, group: value, foodIndex: 0 };
         }
         if (field === 'n') {
           const num = parseFloat(value);
@@ -268,7 +269,7 @@ export function useNutriCal() {
     const frameNum = parseFloat(frame) || 1;
     const dist = (distribution || DEFAULT_DISTRIBUTION).split(',').map(Number);
 
-    const weightKg = wtLbs / 2.205;
+    const weightKg = wtLbs / LB_PER_KG;
     const bmi = bmiOf(weightKg, htCm);
     const bmiInfo = bmiClass(bmi);
 

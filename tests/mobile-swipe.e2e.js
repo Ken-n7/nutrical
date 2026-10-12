@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { mkdirSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const BASE_URL = 'http://localhost:5185';
-const DIST_DIR = '/home/ken/Workspace/nutrical-react/dist';
-const ARTIFACT_DIR = '/home/ken/Workspace/nutrical-react/test-results/swipe';
+const DIST_DIR = fileURLToPath(new URL('../dist', import.meta.url));
+const ARTIFACT_DIR = fileURLToPath(new URL('../test-results/swipe', import.meta.url));
 
 const VIEWPORTS = [
   { name: '320x568', width: 320, height: 568, dpr: 2 },
@@ -101,7 +102,7 @@ async function pageDiagnostics(page) {
           left: Math.round(r.left),
           right: Math.round(r.right),
           w: Math.round(r.width),
-          inRecap: Boolean(el.closest('#recap-content')),
+          inRecap: Boolean(el.closest('.recap-content')),
           inSheet: Boolean(el.closest('.fixed.inset-x-0.bottom-0.z-50')),
           ancestor: (() => {
             let p = el.parentElement;
@@ -139,7 +140,6 @@ async function battery(page, client, vp, step, errors) {
       const n = document.getAnimations();
       for (const a of n) {
         const t = a.animationName || 'none';
-        const prop = a.effect && a.effect.target && a.effect.target.id ? a.effect.target.id : '';
         moving.push(`${t} target=${a.effect && a.effect.target ? String(a.effect.target.tagName || a.effect.target.className).slice(0, 24) : ''} playState=${a.playState}`);
       }
       return moving;
@@ -191,7 +191,7 @@ async function battery(page, client, vp, step, errors) {
         const r = s ? s.getBoundingClientRect() : null;
         const hb = document.querySelector(handleSel);
         const hr = hb ? hb.getBoundingClientRect() : null;
-        const rc = document.querySelector(`${handleSel.replace('button[aria-expanded]', '')} #recap-content`);
+        const rc = document.querySelector(`${handleSel.replace('button[aria-expanded]', '')} .recap-content`);
         const at = document.elementFromPoint(Math.round(innerWidth / 2), innerHeight - 25);
         return {
           sheetTop: r ? Math.round(r.top) : null,
@@ -215,7 +215,7 @@ async function battery(page, client, vp, step, errors) {
         const probe = () => {
           const s = document.querySelector(o.sheetSel);
           const h = s ? s.querySelector('button[aria-expanded]') : null;
-          const rc = s ? s.querySelector('#recap-content') : null;
+          const rc = s ? s.querySelector('.recap-content') : null;
           return {
             inline: s ? s.style.transform : null,
             top: s ? Math.round(s.getBoundingClientRect().top) : null,
@@ -293,7 +293,7 @@ async function battery(page, client, vp, step, errors) {
       const pageMoved = await scrollY(page);
       if (pageMoved !== sheetYRef) add('Page scrolled behind open sheet', { sheetYRef, pageMoved });
 
-      const content = page.locator(`${ACTIVE_SECTION} #recap-content`);
+      const content = page.locator(`${ACTIVE_SECTION} .recap-content`);
       const scrollable = await content.evaluate((el) => el.scrollHeight > el.clientHeight).catch(() => false);
       if (scrollable) {
         const st0 = await content.evaluate((el) => el.scrollTop);

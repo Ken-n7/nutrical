@@ -1,5 +1,7 @@
 // ======================
-// FOOD ITEMS (Sample lists – practical for demo)
+// FOOD ITEMS
+// riceA is transcribed from the FNRI Food Exchange Lists; the other groups
+// are still short sample lists waiting to be replaced the same way.
 // ======================
 export const FOOD_ITEMS = {
   veg: [
@@ -56,12 +58,33 @@ export const FOOD_ITEMS = {
     { name: 'Jam', measure: '1 tsp' },
   ],
 
+  // FEL p. 33, Rice A: Low Protein (23 g carbohydrate, zero or negligible protein).
+  // Transcribed from the book; weight is grams of edible portion.
   riceA: [
-    { name: 'Potato, boiled', measure: '1 medium' },
-    { name: 'Sweet potato, boiled', measure: '1 medium' },
-    { name: 'Corn on cob, boiled', measure: '1 ear' },
-    { name: 'White bread', measure: '1 slice' },
-    { name: 'Crackers, plain', measure: '3 pcs' },
+    { category: 'Rice and Rice Products', filipino: 'Kanin, "protein-reduced"', name: 'Rice, "protein-reduced"', weight: 55, measure: '⅓ cup' },
+    { category: 'Rice and Rice Products', filipino: 'Ampaw, pinipig', name: 'Ampaw, pinipig', weight: 25, measure: '2 pcs', dimension: '7 × 4 × 1.5 cm each' },
+    { category: 'Rice and Rice Products', filipino: 'Biko', name: 'Rice cake (glutinous), biko', weight: 40, measure: '1 slice', dimension: '5 × 3.5 × 2 cm' },
+    { category: 'Rice and Rice Products', filipino: 'Cuchinta', name: 'Rice cake, cuchinta', weight: 60, measure: '2 pcs (5 cm) or 6 pcs (3 cm)', dimension: '5 or 3 cm diameter × 1.5 cm each' },
+    { category: 'Rice and Rice Products', filipino: 'Sapin-sapin', name: 'Rice prep (glutinous), sapin-sapin', weight: 75, measure: '1 slice', dimension: '7 × 4 × 2 cm' },
+    { category: 'Corn and Corn Products', filipino: 'Cornstarch', name: 'Cornstarch', weight: 25, measure: '¼ cup' },
+    { category: 'Corn and Corn Products', filipino: 'Maja blanca', name: 'Corn pudding, maja blanca', weight: 65, measure: '½ slice', dimension: '4.5 × 4 × 3.5 cm' },
+    { category: 'Corn and Corn Products', filipino: 'Maja mais', name: 'Corn pudding, maja mais, yellow', weight: 75, measure: '1 slice', dimension: '6 × 4 × 2.5 cm' },
+    { category: 'Noodles and Pasta', filipino: 'Bihon', name: 'Noodles, rice', weight: 100, measure: '1 cup' },
+    { category: 'Noodles and Pasta', filipino: 'Misua', name: 'Noodles, wheat, thin', weight: 100, measure: '1 cup' },
+    { category: 'Noodles and Pasta', filipino: 'Sotanghon', name: 'Noodles, mungbean starch', weight: 100, measure: '1 cup' },
+    { category: 'Noodles and Pasta', filipino: 'Sweet potato noodles', name: 'Noodles, sweet potato', weight: 100, measure: '1 cup' },
+    { category: 'Rootcrops and Products', filipino: 'Gabi', name: 'Taro', weight: 100, measure: '¾ cup, cubed' },
+    { category: 'Rootcrops and Products', filipino: 'Kamote (dilaw, murado, puti)', name: 'Sweet potato (yellow, purple, white)', weight: 85, measure: '1 pc or ¾ cup, cubed', dimension: '4 cm diameter × 9 cm long' },
+    { category: 'Rootcrops and Products', filipino: 'Kamoteng kahoy/balinghoy', name: 'Cassava', weight: 85, measure: '1 slice or ¾ cup, cubed', dimension: '6 × 5 cm' },
+    { category: 'Rootcrops and Products', filipino: 'Kamoteng kahoy, bibingka', name: 'Cassava cake, bibingka', weight: 55, measure: '1 slice', dimension: '3.5 × 4.5 × 3.5 cm' },
+    { category: 'Rootcrops and Products', filipino: 'Kamoteng kahoy, linupak', name: 'Cassava, mashed, w/sugar and margarine', weight: 55, measure: '1 pc', dimension: '7 × 3 × 3.5 cm' },
+    { category: 'Rootcrops and Products', filipino: 'Kamoteng kahoy, pichi-pichi', name: 'Cassava, pichi-pichi', weight: 45, measure: '1 pc', dimension: '5 cm diameter' },
+    { category: 'Rootcrops and Products', filipino: 'Kamoteng kahoy, suman', name: 'Cassava, suman', weight: 45, measure: '1 pc', dimension: '8.5 × 3 × 2 cm' },
+    { category: 'Rootcrops and Products', filipino: 'Tugi', name: 'Yam, spiny', weight: 150, measure: '1 pc or 1¼ cups, cubed', dimension: '11.5 × 4.5 cm' },
+    { category: 'Rootcrops and Products', filipino: 'Ubi', name: 'Yam, purple', weight: 130, measure: '1 cup, cubed' },
+    { category: 'Others', filipino: 'Saging, saba, nilaga', name: 'Banana, saba, boiled', weight: 65, measure: '1 pc', dimension: '9.5 × 3.5 × 3.5 cm' },
+    { category: 'Others', filipino: 'Sago, nilaga', name: 'Palm starch ball, boiled', weight: 120, measure: '½ cup' },
+    { category: 'Others', filipino: 'Sago, tapioca', name: 'Tapioca pearls', weight: 160, measure: '¾ cup' },
   ],
 
   riceB: [
@@ -113,22 +136,6 @@ export const FOOD_ITEMS = {
     { name: 'Mayonnaise', measure: '1 tsp' },
     { name: 'Peanut butter', measure: '1 tsp' },
   ],
-};
-
-export const GROUP_MEASURES = {
-  veg: ['½ cup', '1 cup', '1½ cups'],
-  fruit: ['1 slice', '1 pc', '1 cup', '1 glass'],
-  milkWhole: ['5 Tbsp', '1 cup', '½ cup', '2 Tbsp'],
-  milk: ['5 Tbsp', '1 cup', '½ cup'],
-  milkSkim: ['5 Tbsp', '1 cup', '½ cup'],
-  sugar: ['1 tsp', '2 tsp', '1 Tbsp'],
-  riceA: ['1 pc', '1 slice', '1 ear', '3 pcs'],
-  riceB: ['1 cup', '1 slice', '1½ cups'],
-  riceC: ['1½ pcs', '1 slice', '¾ cup', '2 pcs'],
-  meatLow: ['1 slice', '3 pcs', '1 cup'],
-  meatMed: ['1 pc', '1 slice', '½ cup', '1 egg'],
-  meatHigh: ['1 slice', '1 pc', '1 can', '¼ cup'],
-  fat: ['1 tsp', '1 Tbsp', '2 tsp'],
 };
 
 // ======================

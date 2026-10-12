@@ -10,13 +10,19 @@ export default function ConfirmDialog({
   icon,
 }) {
   const titleId = useId();
+  const cancelRef = useRef(null);
   const confirmRef = useRef(null);
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    confirmRef.current?.focus();
+    const opener = document.activeElement;
+    cancelRef.current?.focus();
     const handleKey = (e) => {
       if (e.key === 'Escape') onCancel();
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        (document.activeElement === cancelRef.current ? confirmRef : cancelRef).current?.focus();
+      }
     };
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     const prevOverflow = document.body.style.overflow;
@@ -30,6 +36,7 @@ export default function ConfirmDialog({
       document.removeEventListener('keydown', handleKey);
       document.body.style.overflow = prevOverflow;
       document.body.style.paddingRight = prevPadding;
+      opener?.focus?.();
     };
   }, [onCancel]);
 
@@ -67,7 +74,7 @@ export default function ConfirmDialog({
         </div>
 
         <div className="flex justify-end gap-3 mt-5">
-          <button type="button" className="btn btn-ghost text-sm" onClick={onCancel}>
+          <button type="button" ref={cancelRef} className="btn btn-ghost text-sm" onClick={onCancel}>
             Cancel
           </button>
           <button

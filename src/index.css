@@ -438,13 +438,6 @@
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
   }
-  .exchange-input--over {
-    border-color: var(--color-amber-500);
-  }
-  .exchange-input--over:focus {
-    border-color: var(--color-amber-600);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-amber-500) 18%, transparent);
-  }
 
   /* ---------- Exchange grid table ---------- */
   .fel-table {

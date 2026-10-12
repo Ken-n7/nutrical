@@ -198,8 +198,8 @@ describe('useNutriCal hook', () => {
       fillPatient(result);
       const { assessment } = result.current;
       expect(assessment).not.toBeNull();
-      // 150 lb = 68.03 kg, 61 in = 154.94 cm -> BMI = 28.3
-      expect(assessment.bmi).toBeCloseTo(28.3, 1);
+      // 150 lb / 2.2 = 68.18 kg, 61 in = 154.94 cm -> BMI = 28.4
+      expect(assessment.bmi).toBeCloseTo(28.4, 1);
     });
 
     it('classifies BMI as Overweight', () => {

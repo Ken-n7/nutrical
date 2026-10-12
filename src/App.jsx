@@ -169,6 +169,8 @@ export default function App() {
           type="button"
           className="btn btn-primary btn-continue"
           disabled={nextDisabled}
+          // Keep focus where it is: blurring a field can add an error line that moves this button mid-click.
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => (onNext ? onNext() : setStep(nextTo))}
         >
           {nextLabel}

@@ -21,18 +21,6 @@ function ensureSpace(needed) {
   }
 }
 
-function text(line, { size = 11, style = "normal", color = DARK, font = "Times", indent = 0, lh = 1.5, spacing = 6 } = {}) {
-  doc.setFont(font, style);
-  doc.setFontSize(size);
-  doc.setTextColor(...color);
-  const lines = doc.splitTextToSize(line, CONTENT_W - indent);
-  for (const ln of lines) {
-    ensureSpace(size * lh + spacing);
-    doc.text(ln, MARGIN + indent, y);
-    y += size * lh + spacing;
-  }
-}
-
 function headerPage() {
   doc.setFillColor(...ACCENT);
   doc.rect(0, 0, W, 6, "F");

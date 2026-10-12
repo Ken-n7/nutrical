@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const BASE_URL = 'http://localhost:5184';
@@ -10,7 +11,7 @@ let server;
 beforeAll(async () => {
   const { spawn } = await import('child_process');
   server = spawn('python3', ['-m', 'http.server', '5184'], {
-    cwd: '/home/ken/Workspace/nutrical-react/dist',
+    cwd: fileURLToPath(new URL('../dist', import.meta.url)),
     stdio: 'pipe',
   });
   await new Promise(r => setTimeout(r, 2000));

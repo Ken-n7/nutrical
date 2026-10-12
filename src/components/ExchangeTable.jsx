@@ -18,8 +18,6 @@ function ExchangeInput({ value, onChange, label }) {
     [onChange]
   );
 
-  const isHigh = Number(value) > EXCHANGE_MAX;
-
   return (
     <input
       type="number"
@@ -30,9 +28,8 @@ function ExchangeInput({ value, onChange, label }) {
       value={value === 0 ? '' : value}
       onChange={onChange}
       onBlur={handleBlur}
-      className={`exchange-input ${isHigh ? 'exchange-input--over' : ''}`}
+      className="exchange-input"
       aria-label={label}
-      aria-invalid={isHigh}
       placeholder="0"
     />
   );
