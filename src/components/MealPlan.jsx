@@ -4,6 +4,7 @@ import {
   MEAL_PERIODS,
   GROUP_LABELS,
   GROUP_KEYS,
+  foodLabel,
 } from '../data/mealPlanData';
 import { EXCHANGE_MAX } from '../hooks/useNutriCal';
 
@@ -21,9 +22,8 @@ function MealRow({
 }) {
   const isEmpty = !item.group;
   const group = item.group;
-  const items = group ? FOOD_ITEMS[group] || [] : [];
-  const fIdx = Math.min(item.foodIndex || 0, Math.max(items.length - 1, 0));
-  const selectedFood = items[fIdx];
+  const foods = FOOD_ITEMS[group] || [];
+  const foodIdx = foods.findIndex((f) => foodLabel(f) === item.name);
   const isOver = validation?.over;
 
   const { draggingId, overId, dropSide } = dragState;
@@ -120,15 +120,18 @@ function MealRow({
         ) : (
           <select
             className={inputCls}
-            value={fIdx}
-            onChange={(e) => onUpdate(mealKey, item.id, 'foodIndex', e.target.value)}
+            value={foodIdx}
+            onChange={(e) => {
+              const food = foods[e.target.value];
+              onUpdate(mealKey, item.id, 'food', { name: foodLabel(food), measure: food.measure });
+            }}
             aria-label="Food item"
             tabIndex={isDragging ? -1 : 0}
-            title={selectedFood?.name}
+            title={item.name}
           >
-            {items.map((it, i) => (
-              <option key={i} value={i}>
-                {it.name}
+            {foods.map((food, i) => (
+              <option key={food.name} value={i}>
+                {foodLabel(food)}
               </option>
             ))}
           </select>
@@ -140,8 +143,8 @@ function MealRow({
         {isEmpty ? (
           <span className="text-xs text-faint px-1">—</span>
         ) : (
-          <span className="block text-xs text-muted px-1.5 leading-snug break-words" title={selectedFood?.measure || '—'}>
-            {selectedFood?.measure || '—'}
+          <span className="block text-xs text-muted px-1.5 leading-snug break-words" title={item.measure || '—'}>
+            {item.measure || '—'}
           </span>
         )}
       </td>

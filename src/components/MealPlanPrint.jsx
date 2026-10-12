@@ -1,15 +1,12 @@
-import { FOOD_ITEMS, MEAL_PERIODS } from '../data/mealPlanData';
+import { MEAL_PERIODS, fmtExchanges } from '../data/mealPlanData';
 
 function resolveItems(rows = []) {
   return rows
-    .map((row) => {
-      const items = (row.group && FOOD_ITEMS[row.group]) || [];
-      const n = row.n ?? 1;
-      if (items.length === 0 || n === 0) return null;
-      const food = items[Math.min(row.foodIndex || 0, items.length - 1)];
-      return n > 1 ? { ...food, measure: `${n} × ${food.measure}` } : food;
-    })
-    .filter(Boolean);
+    .filter((row) => row.group && row.name && (row.n ?? 1) > 0)
+    .map(({ name, measure, n = 1 }) => ({
+      name,
+      measure: !measure ? '—' : n === 1 ? measure : `${fmtExchanges(n)} × ${measure}`,
+    }));
 }
 
 function today() {

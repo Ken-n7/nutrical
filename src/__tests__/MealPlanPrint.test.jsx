@@ -1,17 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import MealPlanPrint from '../components/MealPlanPrint';
-import { FOOD_ITEMS, MEAL_PERIODS } from '../data/mealPlanData';
+import { MEAL_PERIODS } from '../data/mealPlanData';
 
 function filledMealPlan() {
   return {
     breakfast: [
-      { id: 1, group: 'veg', foodIndex: 0, n: 2 },
-      { id: 2, group: 'riceB', foodIndex: 0, n: 1 },
+      { id: 1, group: 'veg', name: 'Malunggay (Horseradish tree, leaves)', measure: '1 cup', n: 2 },
+      { id: 2, group: 'riceB', name: 'Boiled rice', measure: '½ cup', n: 1 },
     ],
     amSnack: [],
-    lunch: [{ id: 3, group: 'meatMed', foodIndex: 0, n: 1 }],
-    pmSnack: [{ id: 4, group: 'fruit', foodIndex: 0, n: 1 }],
+    lunch: [{ id: 3, group: 'meatMed', name: 'Chicken leg', measure: '1 pc', n: 1.5 }],
+    pmSnack: [
+      { id: 4, group: 'fruit', name: 'Pakwan (Watermelon)', measure: '1 cup', n: 0.5 },
+      { id: 5, group: 'fat', name: '', measure: '', n: 1, custom: true },
+    ],
     supper: [],
   };
 }
@@ -70,12 +73,15 @@ describe('MealPlanPrint', () => {
 
   it('resolves sample menu and household measure from the data', () => {
     renderPrint();
-    const malunggay = FOOD_ITEMS.veg[0];
-    const rice = FOOD_ITEMS.riceB[0];
-    expect(screen.getByText(malunggay.name)).toBeInTheDocument();
-    expect(screen.getByText(`2 × ${malunggay.measure}`)).toBeInTheDocument();
-    expect(screen.getByText(rice.name)).toBeInTheDocument();
-    expect(screen.getByText(rice.measure)).toBeInTheDocument();
+    // each row prints its own name and measure, with the exchange count in front
+    expect(screen.getByText('Malunggay (Horseradish tree, leaves)')).toBeInTheDocument();
+    expect(screen.getByText('2 × 1 cup')).toBeInTheDocument();
+    expect(screen.getByText('Boiled rice')).toBeInTheDocument();
+    expect(screen.getByText('½ cup')).toBeInTheDocument();
+    expect(screen.getByText('1½ × 1 pc')).toBeInTheDocument();
+    expect(screen.getByText('½ × 1 cup')).toBeInTheDocument();
+    // a typed row with no name yet is left out
+    expect(screen.getByRole('rowheader', { name: 'PM Snack' })).toHaveAttribute('rowspan', '1');
   });
 
   it('renders placeholder cells for meals with no items', () => {

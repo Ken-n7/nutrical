@@ -1,5 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { NEW_ROW_DEFAULTS, GROUP_KEYS, EMPTY_MEAL_PLAN, generateMealPlan, nextRowId } from '../data/mealPlanData';
+import {
+  GROUP_KEYS,
+  MEAL_PERIODS,
+  EMPTY_MEAL_PLAN,
+  generateMealPlan,
+  createRow,
+  defaultFood,
+  nextRowId,
+} from '../data/mealPlanData';
 
 // Official FEL 4th Edition values
 const EX = {
@@ -149,9 +157,34 @@ const initialExchanges = {
 // details don't linger on a shared machine.
 const STORAGE_KEY = 'nutrical-session';
 
+// Saved rows may be from an older build or hand-edited: rebuild each one.
+function normalizeRow(row) {
+  const group = GROUP_KEYS.includes(row?.group) ? row.group : '';
+  const food =
+    typeof row?.name === 'string'
+      ? { name: row.name, measure: typeof row.measure === 'string' ? row.measure : '' }
+      : defaultFood(group);
+  return {
+    id: Number.isFinite(row?.id) ? row.id : nextRowId(),
+    group,
+    n: Number.isFinite(row?.n) && row.n >= 0 ? Math.min(row.n, EXCHANGE_MAX) : 1,
+    ...food,
+    custom: row?.custom === true,
+  };
+}
+
 function loadSession() {
   try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || {};
+    const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || {};
+    if (saved.mealPlan) {
+      saved.mealPlan = Object.fromEntries(
+        MEAL_PERIODS.map(({ key }) => [
+          key,
+          (Array.isArray(saved.mealPlan[key]) ? saved.mealPlan[key] : []).map(normalizeRow),
+        ])
+      );
+    }
+    return saved;
   } catch {
     return {};
   }
@@ -197,13 +230,10 @@ export function useNutriCal() {
   }, []);
 
   const addMealRow = useCallback((mealKey) => {
-    const id = nextRowId();
+    const row = createRow('veg');
     setMealPlan((prev) => ({
       ...prev,
-      [mealKey]: [
-        ...(prev[mealKey] || []),
-        { id, ...NEW_ROW_DEFAULTS },
-      ],
+      [mealKey]: [...(prev[mealKey] || []), row],
     }));
   }, []);
 
@@ -240,7 +270,7 @@ export function useNutriCal() {
         if (r.id !== rowId) return r;
 
         if (field === 'group') {
-          return { ...r, group: value, foodIndex: 0 };
+          return { ...r, group: value, ...defaultFood(value), custom: false };
         }
         if (field === 'n') {
           const num = parseFloat(value);
@@ -248,7 +278,10 @@ export function useNutriCal() {
           const capped = Math.min(rounded, EXCHANGE_MAX);
           return { ...r, n: capped };
         }
-        return { ...r, [field]: parseInt(value, 10) };
+        if (field === 'food') {
+          return { ...r, name: value.name, measure: value.measure, custom: false };
+        }
+        return r;
       }),
     }));
   }, []);

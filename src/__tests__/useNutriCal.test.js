@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useNutriCal, fmtInt, fmt1, fmtValue } from '../hooks/useNutriCal';
+import { defaultFood } from '../data/mealPlanData';
 
 const defaultPatient = {
   name: 'Maria Dela Cruz',
@@ -430,6 +431,33 @@ describe('useNutriCal hook', () => {
       });
       const { totalCho, totalProtein, totalFat, totalKcal } = result.current.exchangeData;
       expect([totalCho, totalProtein, totalFat, totalKcal]).toEqual([247, 57, 34, 1522]);
+    });
+  });
+
+  describe('meal row foods', () => {
+    it('resets the food when the group changes, and copies a picked food', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => result.current.addMealRow('lunch'));
+      const { id } = result.current.mealPlan.lunch[0];
+
+      act(() => result.current.updateMealRow('lunch', id, 'group', 'riceA'));
+      expect(result.current.mealPlan.lunch[0]).toMatchObject({ group: 'riceA', ...defaultFood('riceA') });
+
+      act(() => result.current.updateMealRow('lunch', id, 'food', { name: 'Gabi (Taro)', measure: '¾ cup, cubed' }));
+      expect(result.current.mealPlan.lunch[0]).toMatchObject({ name: 'Gabi (Taro)', measure: '¾ cup, cubed', custom: false });
+    });
+
+    it('repairs rows saved by an older build or damaged in storage', () => {
+      sessionStorage.setItem(
+        'nutrical-session',
+        JSON.stringify({ mealPlan: { breakfast: [{ id: 7, group: 'riceA', foodIndex: 2, n: 2 }, { group: 'nope' }], lunch: 'junk' } })
+      );
+      const { result } = renderHook(() => useNutriCal());
+      const { breakfast, lunch, supper } = result.current.mealPlan;
+      expect(breakfast[0]).toMatchObject({ id: 7, group: 'riceA', n: 2, ...defaultFood('riceA') });
+      expect(breakfast[1]).toMatchObject({ group: '', n: 1, name: '', measure: '' });
+      expect(lunch).toEqual([]);
+      expect(supper).toEqual([]);
     });
   });
 
