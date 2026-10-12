@@ -31,32 +31,47 @@ export const FOOD_ITEMS = {
     { name: 'Coconut water', measure: '1 glass' },
   ],
 
+  // FEL p. 30, Milk exchange. The full list. One exchange has 12 g carbohydrate and
+  // 8 g protein; fat is 10 g (whole), 5 g (low fat) or none (skim).
+  // volume is mL; weight is grams (powders).
   milkWhole: [
-    { name: 'Full cream milk, powder', measure: '5 Tbsp' },
-    { name: 'Whole milk, fresh', measure: '1 cup' },
-    { name: 'Evaporated milk, whole', measure: '½ cup' },
-    { name: 'Yogurt, whole', measure: '1 cup' },
+    { filipino: 'Gatas, kalabaw', name: 'Milk, carabao', volume: 200, measure: '¾ cup', note: 'Equivalent to 1 cup cow\'s milk plus 2 exchanges of fat' },
+    { filipino: 'Gatas, baka', name: 'Milk, cow', volume: 250, measure: '1 cup' },
+    { filipino: 'Gatas, evaporada', name: 'Milk, evaporated', volume: 125, measure: '½ cup' },
+    { filipino: 'Gatas, evaporada, filled', name: 'Milk, evaporated, filled', volume: 125, measure: '½ cup' },
+    { filipino: 'Gatas, kambing', name: 'Milk, goat', volume: 250, measure: '1 cup' },
+    { filipino: 'Gatas, recombined', name: 'Milk, recombined', volume: 200, measure: '¾ cup' },
+    { filipino: 'Gatas, pulbos, filled, instant', name: 'Milk, powder, filled, instant', weight: 35, measure: '5 Tbsp, level' },
+    { filipino: 'Gatas, pulbos, full cream', name: 'Milk, powder, full cream', weight: 35, measure: '5 Tbsp, level' },
   ],
 
   milk: [
-    { name: 'Low-fat milk, powder', measure: '5 Tbsp' },
-    { name: 'Low-fat milk, fresh', measure: '1 cup' },
-    { name: 'Evaporated milk, low-fat', measure: '½ cup' },
-    { name: 'Yogurt, low-fat', measure: '1 cup' },
+    { filipino: 'Gatas, low fat', name: 'Milk, low fat', volume: 250, measure: '1 cup' },
+    { filipino: 'Yogurt', name: 'Yogurt', volume: 150, measure: '½ cup' },
   ],
 
   milkSkim: [
-    { name: 'Skim milk, powder', measure: '5 Tbsp' },
-    { name: 'Skim milk, fresh', measure: '1 cup' },
-    { name: 'Evaporated milk, skim', measure: '½ cup' },
-    { name: 'Yogurt, fat-free', measure: '1 cup' },
+    { filipino: 'Buttermilk', name: 'Buttermilk', volume: 180, measure: '¾ cup' },
+    { filipino: 'Gatas, skim', name: 'Milk, skim', volume: 250, measure: '1 cup' },
+    { filipino: 'Gatas, pulbos, skim', name: 'Milk, powder, skim', weight: 25, measure: '4 Tbsp, level' },
+    { filipino: 'Gatas, pulbos, non-fat, instant', name: 'Milk, powder, non-fat, instant', weight: 25, measure: '4 Tbsp, level' },
+    { filipino: 'Yogurt, plain, skim', name: 'Yogurt, plain, skim', volume: 150, measure: '½ cup' },
   ],
 
+  // FEL pp. 54–55, Sugar exchange (5 g carbohydrate, 20 kcal). A selection.
   sugar: [
-    { name: 'White sugar', measure: '1 tsp' },
-    { name: 'Brown sugar', measure: '1 tsp' },
-    { name: 'Honey', measure: '1 tsp' },
-    { name: 'Jam', measure: '1 tsp' },
+    { filipino: 'Asukal (muscovado, pula, puti)', name: 'Sugar (muscovado, brown, white)', weight: 5, measure: '1 tsp' },
+    { filipino: 'Arnibal', name: 'Syrup', weight: 5, measure: '1 tsp' },
+    { filipino: 'Pulot-pukyutan', name: 'Honey', weight: 5, measure: '1 tsp' },
+    { filipino: 'Jam at jellies', name: 'Jam and jellies', weight: 10, measure: '2 tsp' },
+    { filipino: 'Gatas, sweetened, kondensada, filled', name: 'Milk, sweetened, condensed, filled', weight: 5, measure: '1 tsp' },
+    { filipino: 'Pasas', name: 'Raisins', weight: 5, measure: '1 tsp' },
+    { filipino: 'Candy (caramel, hard, toffee)', name: 'Candy (caramel, hard, toffee)', weight: 5, measure: '1 pc' },
+    { filipino: 'Chocolate', name: 'Chocolate', weight: 5, measure: '2 pcs' },
+    { filipino: 'Marshmallow', name: 'Marshmallow', weight: 5, measure: '3 pcs (2 cm diameter each)' },
+    { filipino: 'Banana chips', name: 'Banana chips', weight: 5, measure: '2 pc' },
+    { filipino: 'Dried mango', name: 'Dried mango', weight: 5, measure: '1 pc (6 × 2.5 × 0.1 cm)' },
+    { filipino: 'Leche flan', name: 'Crème custard', weight: 10, measure: '1 slice (3.5 × 2 × 1.5 cm)' },
   ],
 
   // FEL p. 33, Rice A: Low Protein (23 g carbohydrate, zero or negligible protein). The full list.
@@ -144,13 +159,22 @@ export const FOOD_ITEMS = {
     { name: 'Corned beef', measure: '¼ cup' },
   ],
 
+  // FEL pp. 50–51, Fat exchange (5 g fat, 45 kcal). A selection.
   fat: [
-    { name: 'Cooking oil', measure: '1 tsp' },
-    { name: 'Olive oil', measure: '1 tsp' },
-    { name: 'Butter', measure: '1 tsp' },
-    { name: 'Margarine', measure: '1 tsp' },
-    { name: 'Mayonnaise', measure: '1 tsp' },
-    { name: 'Peanut butter', measure: '1 tsp' },
+    { category: 'Monounsaturated Fats', filipino: 'Avocado', name: 'Avocado', weight: 65, measure: '12.5 × 6.5 × 2 cm' },
+    { category: 'Monounsaturated Fats', filipino: 'Mantika/Langis (olive, peanut)', name: 'Oil (olive, peanut)', weight: 5, measure: '1 tsp' },
+    { category: 'Monounsaturated Fats', filipino: 'Kasuy, binusa', name: 'Cashew nut, roasted', weight: 9, measure: '6 pcs, whole' },
+    { category: 'Monounsaturated Fats', filipino: 'Mixed nuts', name: 'Mixed nuts', weight: 7, measure: '1 Tbsp' },
+    { category: 'Monounsaturated Fats', filipino: 'Peanut butter', name: 'Peanut butter', weight: 10, measure: '½ Tbsp' },
+    { category: 'Polyunsaturated Fats', filipino: 'Mantika/Langis (canola, corn, flaxseed, sesame, soybean, sunflower)', name: 'Oil (canola, corn, flaxseed, sesame, soybean, sunflower)', weight: 5, measure: '1 tsp' },
+    { category: 'Saturated Fats', filipino: 'Mantika/Langis, niyog', name: 'Oil, coconut', weight: 5, measure: '1 tsp' },
+    { category: 'Saturated Fats', filipino: 'Mantekilya', name: 'Butter', weight: 5, measure: '1 tsp' },
+    { category: 'Saturated Fats', filipino: 'Margarine', name: 'Margarine', weight: 5, measure: '1 tsp' },
+    { category: 'Saturated Fats', filipino: 'Mayonnaise', name: 'Mayonnaise', weight: 5, measure: '1 tsp' },
+    { category: 'Saturated Fats', filipino: 'Niyog, kakang gata', name: 'Coconut cream', weight: 15, measure: '1 Tbsp' },
+    { category: 'Saturated Fats', filipino: 'Cream, all purpose', name: 'Cream, all purpose', weight: 15, measure: '1 Tbsp' },
+    { category: 'Saturated Fats', filipino: 'Bacon', name: 'Bacon', weight: 10, measure: '1 strip' },
+    { category: 'Saturated Fats', filipino: 'Sitsaron baboy/Sitsarong balat', name: 'Pork crackling, skin', weight: 10, measure: '5 pcs (2 × 2 cm)' },
   ],
 };
 
@@ -194,13 +218,20 @@ export const FOOD_MEASURE_MAX = 40;
 // menu choice (Table 1.7) where it has one. Groups not listed use their first food.
 export const DEFAULT_FOOD = {
   riceA: 'Sweet potato (yellow, purple, white)',
+  milkWhole: 'Milk, powder, full cream',
+  milkSkim: 'Milk, skim',
+  sugar: 'Sugar (muscovado, brown, white)',
   riceB: 'Rice, well-milled, boiled',
   riceC: 'Bread, pan de sal',
+  fat: 'Oil, coconut',
 };
 
-// "Gabi (Taro)"; a single name when Filipino and English are the same.
-export const foodLabel = (food) =>
-  food.filipino && food.filipino !== food.name ? `${food.filipino} (${food.name})` : food.name;
+// "Gabi (Taro)"; a single name when Filipino and English are the same. Names that
+// already contain brackets are joined with a dash instead of nesting them.
+export const foodLabel = ({ filipino, name }) => {
+  if (!filipino || filipino === name) return name;
+  return /[()]/.test(filipino + name) ? `${filipino} – ${name}` : `${filipino} (${name})`;
+};
 
 /** The name and measure a row starts with for a group. */
 export function defaultFood(group) {

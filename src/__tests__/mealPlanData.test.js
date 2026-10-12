@@ -40,6 +40,9 @@ describe('food lists', () => {
     expect(foodLabel({ filipino: 'Gabi', name: 'Taro' })).toBe('Gabi (Taro)');
     expect(foodLabel({ filipino: 'Cornstarch', name: 'Cornstarch' })).toBe('Cornstarch');
     expect(foodLabel({ name: 'Honey' })).toBe('Honey');
+    expect(foodLabel({ filipino: 'Asukal (pula, puti)', name: 'Sugar (brown, white)' })).toBe(
+      'Asukal (pula, puti) – Sugar (brown, white)'
+    );
   });
 });
 
