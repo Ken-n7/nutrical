@@ -29,3 +29,6 @@ docs/*.pdf
 *.njsproj
 *.sln
 *.sw?
+
+# Source book scan (31 MB reference, not part of the app)
+/*.pdf
