@@ -461,6 +461,31 @@ describe('useNutriCal hook', () => {
     });
   });
 
+  describe('half exchanges in meal rows', () => {
+    it('snaps a row count to the nearest half', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => result.current.addMealRow('lunch'));
+      const { id } = result.current.mealPlan.lunch[0];
+      const set = (value) => {
+        act(() => result.current.updateMealRow('lunch', id, 'n', value));
+        return result.current.mealPlan.lunch[0].n;
+      };
+      expect(['0.5', '1.5', '1.3', '0.2', '', '-2', '99'].map(set)).toEqual([0.5, 1.5, 1.5, 0, 0, 0, 20]);
+    });
+
+    it('matches the book: vegetables as 1 + ½ + 1½ make the 3 prescribed (Table 1.6)', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => result.current.updateExchange('veg', 3));
+      const perMeal = { breakfast: 1, lunch: 0.5, supper: 1.5 };
+      for (const meal of Object.keys(perMeal)) act(() => result.current.addMealRow(meal));
+      for (const [meal, n] of Object.entries(perMeal)) {
+        const { id } = result.current.mealPlan[meal][0];
+        act(() => result.current.updateMealRow(meal, id, 'n', n));
+      }
+      expect(result.current.mealPlanValidation.groups.veg).toMatchObject({ mealTotal: 3, valid: true });
+    });
+  });
+
   describe('session restore', () => {
     it('restores state on remount and keeps new row ids unique', () => {
       const first = renderHook(() => useNutriCal());

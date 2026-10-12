@@ -46,6 +46,9 @@ function MealRow({
   const group = item.group;
   // Only the handle arms dragging, so text in the row's inputs can be selected with the mouse.
   const [armed, setArmed] = useState(false);
+  // What is being typed in the count box. The row itself always holds the snapped
+  // value; echoing that back mid-typing would turn "1.25" into "15".
+  const [draft, setDraft] = useState(null);
 
   const foods = FOOD_ITEMS[group] || [];
   const listIdx = foods.findIndex((f) => foodLabel(f) === item.name);
@@ -149,15 +152,15 @@ function MealRow({
             type="number"
             min="0"
             max={EXCHANGE_MAX}
-            step="1"
-            value={item.n ?? 1}
-            onChange={(e) => onUpdate(mealKey, item.id, 'n', e.target.value)}
-            onBlur={(e) => {
-              const v = parseFloat(e.target.value);
-              const snapped = Number.isFinite(v) && v >= 0
-                ? Math.min(EXCHANGE_MAX, Math.round(v))
-                : 1;
-              if (snapped !== item.n) onUpdate(mealKey, item.id, 'n', String(snapped));
+            step="0.5"
+            value={draft ?? item.n ?? 1}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              onUpdate(mealKey, item.id, 'n', e.target.value);
+            }}
+            onBlur={() => {
+              if (draft !== null && !(parseFloat(draft) >= 0)) onUpdate(mealKey, item.id, 'n', '1');
+              setDraft(null);
             }}
             className="w-full text-center text-xs font-semibold border-0 bg-transparent py-2 px-1 focus:outline-none focus:ring-1 focus:ring-primary rounded"
             aria-label="Exchange count"

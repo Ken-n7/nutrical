@@ -103,4 +103,26 @@ describe('MealPlan', () => {
     await user.type(screen.getByLabelText('Household measure'), '2 cups');
     expect(screen.queryByRole('button', { name: 'Save to my foods' })).toBeNull();
   });
+
+  it('takes half exchanges as typed and snaps them when the box is left', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Harness />);
+    const print = container.querySelector('.meal-plan-print tbody');
+    await user.click(screen.getAllByRole('button', { name: '+ Add' })[0]);
+    const count = screen.getByLabelText('Exchange count');
+    const typeCount = async (text) => {
+      await user.clear(count);
+      if (text) await user.type(count, text);
+      await user.tab();
+      return Number(count.value);
+    };
+
+    expect(await typeCount('1.5')).toBe(1.5);
+    expect(print.textContent).toContain('1½ × ');
+    expect(await typeCount('.5')).toBe(0.5);
+    expect(await typeCount('1.25')).toBe(1.5);
+    expect(await typeCount('2.2')).toBe(2);
+    expect(await typeCount('')).toBe(1);
+  });
 });
+

@@ -46,6 +46,10 @@ const LB_PER_KG = 2.2;
 const DEFAULT_DISTRIBUTION = '65,15,20';
 const snapExchange = (n) => Math.min(EXCHANGE_MAX, roundN(n));
 
+// Meal rows take half exchanges (FEL Table 1.6); group totals in step 3 stay whole.
+export const snapHalf = (n) =>
+  Number.isFinite(n) && n > 0 ? Math.min(EXCHANGE_MAX, Math.round(n * 2) / 2) : 0;
+
 // Fill groups in order, moving whatever exceeds the per-group cap on to the next one.
 const spill = (result, keys, total) => {
   let left = roundN(total);
@@ -172,7 +176,7 @@ function normalizeRow(row) {
   return {
     id: Number.isFinite(row?.id) ? row.id : nextRowId(),
     group,
-    n: Number.isFinite(row?.n) && row.n >= 0 ? Math.min(row.n, EXCHANGE_MAX) : 1,
+    n: Number.isFinite(row?.n) ? snapHalf(row.n) : 1,
     ...food,
     custom: row?.custom === true,
   };
@@ -278,10 +282,7 @@ export function useNutriCal() {
           return { ...r, group: value, ...defaultFood(value), custom: false };
         }
         if (field === 'n') {
-          const num = parseFloat(value);
-          const rounded = Number.isFinite(num) && num >= 0 ? Math.round(num) : 0;
-          const capped = Math.min(rounded, EXCHANGE_MAX);
-          return { ...r, n: capped };
+          return { ...r, n: snapHalf(parseFloat(value)) };
         }
         if (field === 'food') {
           return { ...r, name: value.name, measure: value.measure, custom: false };

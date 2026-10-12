@@ -1,4 +1,4 @@
-import { GROUP_KEYS, GROUP_LABELS } from '../data/mealPlanData';
+import { GROUP_KEYS, GROUP_LABELS, fmtExchanges } from '../data/mealPlanData';
 import { MovingBorderOutline } from './ui/moving-border';
 import { OkBadge, WarnBadge } from './CompareBadges';
 
@@ -29,7 +29,7 @@ export default function PlanCompare({ validation, exchanges }) {
           const chipText =
             diff === 0
               ? 'Match'
-              : `${diff > 0 ? '+' : ''}${diff}${diff > 0 ? ' over' : ' under'}`;
+              : `${diff > 0 ? '+' : '−'}${fmtExchanges(Math.abs(diff))}${diff > 0 ? ' over' : ' under'}`;
           return (
             <div
               key={g}
@@ -38,7 +38,7 @@ export default function PlanCompare({ validation, exchanges }) {
               <span className="fel-cmp-left">
                 <span className="fel-cmp-label">{GROUP_LABELS[g]}</span>
                 <span className="fel-cmp-value">
-                  Plan {mealTotal} / Dist {exchangeTotal}
+                  Plan {fmtExchanges(mealTotal)} / Dist {exchangeTotal}
                 </span>
               </span>
               <span className={`chip ${chipClass} fel-cmp-diff`}>{chipText}</span>
