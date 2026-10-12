@@ -7,6 +7,8 @@ import {
   createRow,
   defaultFood,
   nextRowId,
+  FOOD_NAME_MAX,
+  FOOD_MEASURE_MAX,
 } from '../data/mealPlanData';
 
 // Official FEL 4th Edition values
@@ -162,7 +164,10 @@ function normalizeRow(row) {
   const group = GROUP_KEYS.includes(row?.group) ? row.group : '';
   const food =
     typeof row?.name === 'string'
-      ? { name: row.name, measure: typeof row.measure === 'string' ? row.measure : '' }
+      ? {
+          name: row.name.slice(0, FOOD_NAME_MAX),
+          measure: typeof row.measure === 'string' ? row.measure.slice(0, FOOD_MEASURE_MAX) : '',
+        }
       : defaultFood(group);
   return {
     id: Number.isFinite(row?.id) ? row.id : nextRowId(),
@@ -281,6 +286,12 @@ export function useNutriCal() {
         if (field === 'food') {
           return { ...r, name: value.name, measure: value.measure, custom: false };
         }
+        // "Other (type your own)": start a blank typed food
+        if (field === 'custom') {
+          return { ...r, name: '', measure: '', custom: true };
+        }
+        if (field === 'name') return { ...r, name: String(value).slice(0, FOOD_NAME_MAX) };
+        if (field === 'measure') return { ...r, measure: String(value).slice(0, FOOD_MEASURE_MAX) };
         return r;
       }),
     }));

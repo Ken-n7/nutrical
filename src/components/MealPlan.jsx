@@ -4,14 +4,36 @@ import {
   MEAL_PERIODS,
   GROUP_LABELS,
   GROUP_KEYS,
+  FOOD_NAME_MAX,
+  FOOD_MEASURE_MAX,
   foodLabel,
 } from '../data/mealPlanData';
 import { EXCHANGE_MAX } from '../hooks/useNutriCal';
+
+// Book foods per group, split into runs of the same category for <optgroup>.
+const FOOD_SECTIONS = Object.fromEntries(
+  GROUP_KEYS.map((group) => {
+    const sections = [];
+    FOOD_ITEMS[group].forEach((food, index) => {
+      const last = sections.at(-1);
+      if (last && last.category === food.category) last.foods.push({ food, index });
+      else sections.push({ category: food.category, foods: [{ food, index }] });
+    });
+    return [group, sections];
+  })
+);
+
+const OTHER = 'other';
+
+const textInputCls =
+  'text-xs border border-border-strong bg-transparent py-1.5 px-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary';
 
 function MealRow({
   item,
   mealKey,
   validation,
+  savedFoods,
+  onSaveFood,
   onUpdate,
   onRemove,
   onDragStart,
@@ -22,8 +44,31 @@ function MealRow({
 }) {
   const isEmpty = !item.group;
   const group = item.group;
+  // Only the handle arms dragging, so text in the row's inputs can be selected with the mouse.
+  const [armed, setArmed] = useState(false);
+
   const foods = FOOD_ITEMS[group] || [];
-  const foodIdx = foods.findIndex((f) => foodLabel(f) === item.name);
+  const listIdx = foods.findIndex((f) => foodLabel(f) === item.name);
+  const savedIdx = savedFoods.findIndex((f) => f.name === item.name);
+  // A row whose food is no longer in any list keeps its text and shows as typed.
+  const foodValue = item.custom ? OTHER : listIdx >= 0 ? `list:${listIdx}` : savedIdx >= 0 ? `saved:${savedIdx}` : OTHER;
+  const isOther = foodValue === OTHER;
+  const typedName = item.name.trim();
+  const canSave =
+    isOther &&
+    typedName &&
+    item.measure.trim() &&
+    !foods.some((f) => foodLabel(f).toLowerCase() === typedName.toLowerCase());
+
+  const pickFood = (value) => {
+    if (value === OTHER) return onUpdate(mealKey, item.id, 'custom');
+    const [source, index] = value.split(':');
+    const food = source === 'saved' ? savedFoods[index] : foods[index];
+    onUpdate(mealKey, item.id, 'food', {
+      name: source === 'saved' ? food.name : foodLabel(food),
+      measure: food.measure,
+    });
+  };
   const isOver = validation?.over;
 
   const { draggingId, overId, dropSide } = dragState;
@@ -47,16 +92,24 @@ function MealRow({
     'w-full text-xs border-0 bg-transparent py-2 px-1.5 focus:outline-none focus:ring-1 focus:ring-primary rounded cursor-pointer';
 
   return (
+    <>
     <tr
-      draggable
+      draggable={armed}
       onDragStart={(e) => onDragStart(e, item.id)}
       onDragOver={(e) => onDragOver(e, item.id)}
-      onDragEnd={onDragEnd}
+      onDragEnd={(e) => {
+        setArmed(false);
+        onDragEnd(e);
+      }}
       onDrop={(e) => onDrop(e, item.id)}
-      className={rowClass}
+      className={`${rowClass}${isOther ? 'border-b-0' : ''}`}
     >
       {/* Drag handle */}
-      <td className="w-7 cursor-grab active:cursor-grabbing select-none text-center">
+      <td
+        className="w-7 cursor-grab active:cursor-grabbing select-none text-center"
+        onMouseDown={() => setArmed(true)}
+        onMouseUp={() => setArmed(false)}
+      >
         <span className="inline-flex items-center justify-center text-faint hover:text-primary">
           <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <circle cx="9" cy="5" r="1.5" />
@@ -120,20 +173,36 @@ function MealRow({
         ) : (
           <select
             className={inputCls}
-            value={foodIdx}
-            onChange={(e) => {
-              const food = foods[e.target.value];
-              onUpdate(mealKey, item.id, 'food', { name: foodLabel(food), measure: food.measure });
-            }}
+            value={foodValue}
+            onChange={(e) => pickFood(e.target.value)}
             aria-label="Food item"
             tabIndex={isDragging ? -1 : 0}
             title={item.name}
           >
-            {foods.map((food, i) => (
-              <option key={food.name} value={i}>
-                {foodLabel(food)}
-              </option>
-            ))}
+            {FOOD_SECTIONS[group].map(({ category, foods: section }) => {
+              const options = section.map(({ food, index }) => (
+                <option key={food.name} value={`list:${index}`}>
+                  {foodLabel(food)}
+                </option>
+              ));
+              return category ? (
+                <optgroup key={category} label={category}>
+                  {options}
+                </optgroup>
+              ) : (
+                options
+              );
+            })}
+            {savedFoods.length > 0 && (
+              <optgroup label="My foods">
+                {savedFoods.map((food, i) => (
+                  <option key={food.name} value={`saved:${i}`}>
+                    {food.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            <option value={OTHER}>Other (type your own)…</option>
           </select>
         )}
       </td>
@@ -164,6 +233,46 @@ function MealRow({
         </button>
       </td>
     </tr>
+    {/* Typed food: its own full-width row, since the Food column is too narrow to type in on a phone */}
+    {isOther && (
+      <tr>
+        <td colSpan={6} className="px-2 pb-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="text"
+              className={`${textInputCls} flex-1 min-w-32`}
+              value={item.name}
+              maxLength={FOOD_NAME_MAX}
+              placeholder="Food name"
+              aria-label="Food name"
+              onChange={(e) => onUpdate(mealKey, item.id, 'name', e.target.value)}
+            />
+            <input
+              type="text"
+              className={`${textInputCls} flex-none w-28`}
+              value={item.measure}
+              maxLength={FOOD_MEASURE_MAX}
+              placeholder="Measure, e.g. 1 cup"
+              aria-label="Household measure"
+              onChange={(e) => onUpdate(mealKey, item.id, 'measure', e.target.value)}
+            />
+            {canSave && (
+              <button
+                type="button"
+                className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                onClick={() => {
+                  const saved = onSaveFood(group, { name: item.name, measure: item.measure });
+                  if (saved) onUpdate(mealKey, item.id, 'food', saved);
+                }}
+              >
+                Save to my foods
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+    )}
+    </>
   );
 }
 
@@ -172,6 +281,8 @@ function MealSection({
   mealLabel,
   rows,
   validation,
+  foodBank,
+  saveFood,
   addMealRow,
   removeMealRow,
   updateMealRow,
@@ -285,6 +396,8 @@ function MealSection({
                   item={item}
                   mealKey={mealKey}
                   validation={validation?.groups?.[item.group]}
+                  savedFoods={foodBank[item.group] || []}
+                  onSaveFood={saveFood}
                   onUpdate={updateMealRow}
                   onRemove={removeMealRow}
                   onDragStart={handleDragStart}
@@ -309,8 +422,13 @@ export default function MealPlan({
   updateMealRow,
   moveMealRow,
   mealPlanValidation,
+  foodBank = {},
+  saveFood,
+  removeFood,
 }) {
   if (!mealPlan || !mealPlanValidation) return null;
+
+  const savedCount = GROUP_KEYS.reduce((sum, group) => sum + (foodBank[group]?.length || 0), 0);
 
   return (
     <div className="space-y-4">
@@ -323,6 +441,8 @@ export default function MealPlan({
             mealLabel={label}
             rows={mealPlan[key] || []}
             validation={mealPlanValidation}
+            foodBank={foodBank}
+            saveFood={saveFood}
             addMealRow={addMealRow}
             removeMealRow={removeMealRow}
             updateMealRow={updateMealRow}
@@ -330,6 +450,32 @@ export default function MealPlan({
           />
         ))}
       </div>
+
+      {savedCount > 0 && (
+        <details className="rounded-xl border border-border bg-surface px-3 py-2.5">
+          <summary className="text-xs font-bold text-text cursor-pointer">My foods ({savedCount})</summary>
+          <ul className="mt-2 divide-y divide-border list-none p-0 m-0">
+            {GROUP_KEYS.flatMap((group) =>
+              (foodBank[group] || []).map((food) => (
+                <li key={`${group}:${food.name}`} className="flex items-center gap-2 py-1.5 text-xs">
+                  <span className="shrink-0 text-faint">{GROUP_LABELS[group]}</span>
+                  <span className="min-w-0 flex-1 break-words text-text">
+                    {food.name} <span className="text-muted">· {food.measure}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeFood(group, food.name)}
+                    className="shrink-0 p-1.5 rounded-md text-faint hover:text-red-500 cursor-pointer"
+                    aria-label={`Remove ${food.name} from my foods`}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        </details>
+      )}
     </div>
   );
 }

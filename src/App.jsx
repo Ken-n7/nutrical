@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight, Loader2, Save } from 'lucide-react';
 import { useNutriCal, validatePatient, resetSession } from './hooks/useNutriCal';
+import { useFoodBank } from './hooks/useFoodBank';
 import { downloadMealPlanPdf } from './lib/mealPlanPdf';
 import PatientForm from './components/PatientForm';
 import AssessmentDisplay from './components/AssessmentDisplay';
@@ -79,6 +80,7 @@ export default function App() {
     setError,
   } = useNutriCal();
 
+  const { bank, saveFood, removeFood } = useFoodBank();
   const [step, setStep] = useState(0);
   // Dark only: the starfield is unreadable in light mode and the toggle is hidden.
   const [theme, setTheme] = useState('dark');
@@ -439,6 +441,9 @@ export default function App() {
                   updateMealRow={updateMealRow}
                   moveMealRow={moveMealRow}
                   mealPlanValidation={mealPlanValidation}
+                  foodBank={bank}
+                  saveFood={saveFood}
+                  removeFood={removeFood}
                 />
               )}
               {nav(2, null)}

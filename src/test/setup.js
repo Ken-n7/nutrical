@@ -1,7 +1,10 @@
 import '@testing-library/jest-dom/vitest';
 
 // The app saves its session; start every test from defaults.
-beforeEach(() => sessionStorage.clear());
+beforeEach(() => {
+  sessionStorage.clear();
+  localStorage.clear();
+});
 
 if (typeof globalThis.ResizeObserver === 'undefined') {
   class ResizeObserverStub {

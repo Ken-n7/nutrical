@@ -170,6 +170,10 @@ export const MEAL_PERIODS = [
 // ======================
 // DEFAULTS
 // ======================
+// Length caps for typed foods (inputs, saved bank, restored sessions).
+export const FOOD_NAME_MAX = 80;
+export const FOOD_MEASURE_MAX = 40;
+
 // Food used by "+ Add" and "Generate Plan", by English name: the book's sample
 // menu choice (Table 1.7) where it has one. Groups not listed use their first food.
 export const DEFAULT_FOOD = {
