@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight, Loader2, Save } from 'lucide-react';
-import { useNutriCal, DEFAULT_DISTRIBUTION } from './hooks/useNutriCal';
+import { useNutriCal, validatePatient } from './hooks/useNutriCal';
 import { downloadMealPlanPdf } from './lib/mealPlanPdf';
 import PatientForm from './components/PatientForm';
 import AssessmentDisplay from './components/AssessmentDisplay';
@@ -57,19 +57,6 @@ const STEPS = [
   { id: 'meal-plan', num: '4', name: 'Meal Plan' },
 ];
 
-const THEME_KEY = 'nutrical-theme';
-
-function getInitialTheme() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(THEME_KEY) || 'null');
-    if (saved === 'dark' || saved === 'light') return saved;
-  } catch {}
-  if (typeof window.matchMedia === 'function') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  return 'light';
-}
-
 export default function App() {
   const {
     patient,
@@ -93,7 +80,8 @@ export default function App() {
   } = useNutriCal();
 
   const [step, setStep] = useState(0);
-  const [theme, setTheme] = useState(getInitialTheme);
+  // Dark only: the starfield is unreadable in light mode and the toggle is hidden.
+  const [theme, setTheme] = useState('dark');
   const [saving, setSaving] = useState(false);
   const [confirmClear, setConfirmClear] = useState(null);
   const savingRef = useRef(false);
@@ -115,9 +103,6 @@ export default function App() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle('dark', theme === 'dark');
-    try {
-      localStorage.setItem(THEME_KEY, JSON.stringify(theme));
-    } catch {}
   }, [theme]);
 
   useEffect(() => {
@@ -126,38 +111,9 @@ export default function App() {
 
   const handleCompute = useCallback(
     (onValid) => {
-      const { age, heightFt, heightIn, weight, frame, activity, distribution } = patient;
-      const totalInches = (parseInt(heightFt, 10) || 0) * 12 + (parseInt(heightIn, 10) || 0);
-      const wtLbs = parseFloat(weight) || 0;
-      const af = parseFloat(activity) || 35;
-      const dist = (distribution || DEFAULT_DISTRIBUTION).split(',').map(Number);
-
-      if (![parseFloat(age), totalInches, wtLbs, parseFloat(frame), af].every(Number.isFinite)) {
-        setError('Please complete all patient assessment fields.');
-        return;
-      }
-      if (parseFloat(age) < 1 || parseFloat(age) > 120) {
-        setError('Age must be between 1 and 120 years.');
-        return;
-      }
-      if (totalInches < 36 || totalInches > 96) {
-        setError('Height must be between 3 and 8 feet.');
-        return;
-      }
-      if (wtLbs < 30 || wtLbs > 500) {
-        setError('Weight must be between 30 and 500 lb.');
-        return;
-      }
-      if (
-        dist.length !== 3 ||
-        dist.some((n) => !Number.isFinite(n)) ||
-        Math.abs(dist.reduce((a, b) => a + b, 0) - 100) > 0.001
-      ) {
-        setError('Macronutrient distribution must total 100%.');
-        return;
-      }
-      setError(null);
-      onValid?.();
+      const err = validatePatient(patient);
+      setError(err);
+      if (!err) onValid?.();
     },
     [patient, setError]
   );

@@ -30,7 +30,7 @@ describe('AssessmentDisplay', () => {
 
   it('displays BMI value', () => {
     render(<AssessmentDisplay assessment={mockAssessment} />);
-    expect(screen.getByText('28')).toBeInTheDocument();
+    expect(screen.getByText('28.3')).toBeInTheDocument();
   });
 
   it('displays BMI classification badge', () => {

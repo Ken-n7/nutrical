@@ -73,9 +73,9 @@ describe('MealPlanPrint', () => {
     const malunggay = FOOD_ITEMS.veg[0];
     const rice = FOOD_ITEMS.riceB[0];
     expect(screen.getByText(malunggay.name)).toBeInTheDocument();
-    expect(screen.getAllByText(malunggay.measure)).toHaveLength(2);
+    expect(screen.getByText(`2 × ${malunggay.measure}`)).toBeInTheDocument();
     expect(screen.getByText(rice.name)).toBeInTheDocument();
-    expect(screen.getAllByText(rice.measure)).toHaveLength(2);
+    expect(screen.getByText(rice.measure)).toBeInTheDocument();
   });
 
   it('renders placeholder cells for meals with no items', () => {

@@ -174,6 +174,9 @@ export const NEW_ROW_DEFAULTS = {
 // ======================
 let _idCounter = 1000;
 
+// Single source of row ids, so generated and hand-added rows never collide.
+export const nextRowId = () => _idCounter++;
+
 function snapToInt(n) {
   if (!Number.isFinite(n) || n <= 0) return 0;
   return Math.round(n);
@@ -201,7 +204,7 @@ function distributeParts(parts, slots) {
 
 function createRow(group, foodIndex = 0, n = 1) {
   return {
-    id: _idCounter++,
+    id: nextRowId(),
     group,
     foodIndex,
     n: snapToInt(n) || 1,

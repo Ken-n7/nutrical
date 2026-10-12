@@ -4,9 +4,10 @@ function resolveItems(rows = []) {
   return rows
     .map((row) => {
       const items = (row.group && FOOD_ITEMS[row.group]) || [];
-      if (items.length === 0) return null;
-      const fIdx = Math.min(row.foodIndex || 0, items.length - 1);
-      return items[Math.min(fIdx, Math.max(items.length - 1, 0))];
+      const n = row.n ?? 1;
+      if (items.length === 0 || n === 0) return null;
+      const food = items[Math.min(row.foodIndex || 0, items.length - 1)];
+      return n > 1 ? { ...food, measure: `${n} × ${food.measure}` } : food;
     })
     .filter(Boolean);
 }

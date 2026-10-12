@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo, useRef } from 'react';
-import { NEW_ROW_DEFAULTS, GROUP_KEYS, generateMealPlan } from '../data/mealPlanData';
+import { useState, useCallback, useMemo } from 'react';
+import { NEW_ROW_DEFAULTS, GROUP_KEYS, generateMealPlan, nextRowId } from '../data/mealPlanData';
 
 // Official FEL 4th Edition values
 const EX = {
@@ -91,6 +91,30 @@ const initialPatient = {
   distribution: DEFAULT_DISTRIBUTION,
 };
 
+// Returns the first problem as a message, or null when the patient is usable.
+export function validatePatient({ age, heightFt, heightIn, weight, frame, distribution }) {
+  const ageNum = parseFloat(age);
+  const totalInches = (parseInt(heightFt, 10) || 0) * 12 + (parseInt(heightIn, 10) || 0);
+  const wtLbs = parseFloat(weight) || 0;
+  const dist = (distribution || DEFAULT_DISTRIBUTION).split(',').map(Number);
+
+  if (![ageNum, parseFloat(frame)].every(Number.isFinite)) {
+    return 'Please complete all patient assessment fields.';
+  }
+  if (ageNum < 1 || ageNum > 120) return 'Age must be between 1 and 120 years.';
+  // Hamwi goes to zero and below near 3'4", so the floor is 4 ft.
+  if (totalInches < 48 || totalInches > 96) return 'Height must be between 4 and 8 feet.';
+  if (wtLbs < 30 || wtLbs > 500) return 'Weight must be between 30 and 500 lb.';
+  if (
+    dist.length !== 3 ||
+    dist.some((n) => !Number.isFinite(n)) ||
+    Math.abs(dist.reduce((a, b) => a + b, 0) - 100) > 0.001
+  ) {
+    return 'Macronutrient distribution must total 100%.';
+  }
+  return null;
+}
+
 const initialExchanges = {
   veg: 0,
   fruit: 0,
@@ -119,8 +143,6 @@ export function useNutriCal() {
   });
   const [error, setError] = useState(null);
 
-  const rowIdRef = useRef(1000);
-
   const updatePatient = useCallback((field, value) => {
     setPatient((prev) => ({ ...prev, [field]: value }));
     setError(null);
@@ -141,7 +163,7 @@ export function useNutriCal() {
   }, []);
 
   const addMealRow = useCallback((mealKey) => {
-    const id = rowIdRef.current++;
+    const id = nextRowId();
     setMealPlan((prev) => ({
       ...prev,
       [mealKey]: [
@@ -208,7 +230,9 @@ export function useNutriCal() {
   }, [exchanges]);
 
   const assessment = useMemo(() => {
-    const { age, sex, frame, heightFt, heightIn, weight, activity, distribution } = patient;
+    if (validatePatient(patient)) return null;
+
+    const { sex, frame, heightFt, heightIn, weight, activity, distribution } = patient;
 
     const totalInches = (parseInt(heightFt, 10) || 0) * 12 + (parseInt(heightIn, 10) || 0);
     const htCm = totalInches * 2.54;
@@ -216,10 +240,6 @@ export function useNutriCal() {
     const af = parseFloat(activity) || 35;
     const frameNum = parseFloat(frame) || 1;
     const dist = (distribution || DEFAULT_DISTRIBUTION).split(',').map(Number);
-
-    if (![parseFloat(age), totalInches, wtLbs, frameNum, af].every(Number.isFinite)) {
-      return null;
-    }
 
     const weightKg = wtLbs / 2.205;
     const bmi = bmiOf(weightKg, htCm);

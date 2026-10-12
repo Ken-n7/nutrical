@@ -295,6 +295,28 @@ describe('useNutriCal hook', () => {
       });
       expect(result.current.assessment).toBeNull();
     });
+
+    it('returns null assessment for out-of-range data', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => result.current.updatePatient('weight', '5'));
+      expect(result.current.assessment).toBeNull();
+      act(() => {
+        result.current.updatePatient('weight', '150');
+        result.current.updatePatient('heightFt', '3');
+      });
+      expect(result.current.assessment).toBeNull();
+    });
+  });
+
+  describe('meal row ids', () => {
+    it('never reuses a generated row id for an added row', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => result.current.suggestExchanges());
+      act(() => result.current.generatePlan());
+      act(() => result.current.addMealRow('breakfast'));
+      const ids = result.current.mealPlan.breakfast.map((r) => r.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
   });
 
   describe('exchangeData calculations', () => {

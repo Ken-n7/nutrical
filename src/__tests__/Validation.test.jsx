@@ -122,15 +122,15 @@ describe('PatientForm validation', () => {
   });
 
   describe('blur validation - height', () => {
-    it('shows error for total height below 3ft', async () => {
+    it('shows error for total height below 4ft', async () => {
       const user = userEvent.setup();
       render(<PatientFormWrapper />);
       const ftInput = screen.getByLabelText('Height in feet');
       await user.clear(ftInput);
-      await user.type(ftInput, '2');
+      await user.type(ftInput, '3');
       await user.tab();
       await waitFor(() => {
-        expect(screen.getByText('Total height must be 3–8 ft')).toBeInTheDocument();
+        expect(screen.getByText('Total height must be 4–8 ft')).toBeInTheDocument();
       });
     });
 

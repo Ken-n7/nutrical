@@ -186,7 +186,7 @@ export default function RecapSidebar({ patient, assessment, children }) {
 
   if (assessment) {
     rows.push(
-      { label: 'BMI', value: `${fmt1(assessment.bmi)} · ${assessment.bmiInfo.label}` },
+      { label: 'BMI', value: `${assessment.bmi.toFixed(1)} · ${assessment.bmiInfo.label}` },
       { label: 'DBW', value: `${fmt1(assessment.dbw.kg)} kg` }
     );
   }

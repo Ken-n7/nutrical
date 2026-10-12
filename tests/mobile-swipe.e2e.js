@@ -176,6 +176,11 @@ async function battery(page, client, vp, step, errors) {
   const hasSheet = (await handle.count()) > 0;
   const sheetSel = `${ACTIVE_SECTION} .lg\\:hidden .fixed.inset-x-0.bottom-0.z-50`;
   if (hasSheet) {
+    // Let the page finish gliding from the swipes above before taking the reference.
+    await page.waitForFunction(() => {
+      const y = window.scrollY;
+      return new Promise((r) => setTimeout(() => r(window.scrollY === y), 200));
+    });
     const sheetYRef = await scrollY(page);
     const expandedBefore = await handle.getAttribute('aria-expanded');
     if (expandedBefore !== 'false') add('Sheet expected closed but aria-expanded=' + expandedBefore);

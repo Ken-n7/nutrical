@@ -62,7 +62,7 @@ export default function AssessmentDisplay({ assessment }) {
         <MetricCard
           icon="M4.5 12.75l6 6 9-13.5"
           label="BMI"
-          value={fmt1(bmi)}
+          value={bmi.toFixed(1)}
           badge={bmiInfo}
         />
         <MetricCard

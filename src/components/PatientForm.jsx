@@ -12,7 +12,7 @@ const VALIDATORS = {
     const inches = parseInt(patient.heightIn, 10) || 0;
     const total = ft * 12 + inches;
     if (!Number.isFinite(total) || total === 0) return 'Required';
-    if (total < 36 || total > 96) return 'Total height must be 3–8 ft';
+    if (total < 48 || total > 96) return 'Total height must be 4–8 ft';
     return null;
   },
   heightIn: (v, patient) => {
@@ -21,7 +21,7 @@ const VALIDATORS = {
     if (inches < 0 || inches > 11) return 'Must be 0–11 inches';
     const ft = parseInt(patient.heightFt, 10) || 0;
     const total = ft * 12 + inches;
-    if (total < 36 || total > 96) return 'Total height must be 3–8 ft';
+    if (total < 48 || total > 96) return 'Total height must be 4–8 ft';
     return null;
   },
   weight: (v) => {
@@ -126,7 +126,7 @@ function PatientForm({ patient, updatePatient, error }) {
               <input
                 type="number"
                 value={patient.heightFt}
-                min="3"
+                min="4"
                 max="8"
                 inputMode="numeric"
                 aria-label="Height in feet"
