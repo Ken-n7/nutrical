@@ -402,7 +402,43 @@ describe('useNutriCal hook', () => {
     });
   });
 
+  describe('session restore', () => {
+    it('restores state on remount and keeps new row ids unique', () => {
+      const first = renderHook(() => useNutriCal());
+      act(() => first.result.current.updatePatient('name', 'Juan'));
+      act(() => first.result.current.suggestExchanges());
+      act(() => first.result.current.generatePlan());
+      const saved = first.result.current.mealPlan;
+      first.unmount();
+
+      const { result } = renderHook(() => useNutriCal());
+      expect(result.current.patient.name).toBe('Juan');
+      expect(result.current.exchanges.veg).toBe(3);
+      expect(result.current.mealPlan).toEqual(saved);
+
+      act(() => result.current.addMealRow('breakfast'));
+      const ids = result.current.mealPlan.breakfast.map((r) => r.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+  });
+
   describe('suggestExchanges', () => {
+    it('spills past the per-group cap instead of falling short', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => {
+        result.current.updatePatient('sex', 'male');
+        result.current.updatePatient('heightFt', '6');
+        result.current.updatePatient('heightIn', '4');
+        result.current.updatePatient('activity', '45');
+      });
+      act(() => result.current.suggestExchanges());
+
+      expect(result.current.exchanges.riceB).toBe(20);
+      expect(result.current.exchanges.riceA).toBeGreaterThan(0);
+      // within half a rice exchange of the CHO target
+      expect(Math.abs(result.current.exchangeData.choDiff)).toBeLessThanOrEqual(12);
+    });
+
     it('fills exchanges using the FEL method when an assessment exists', () => {
       const { result } = renderHook(() => useNutriCal());
       fillPatient(result);

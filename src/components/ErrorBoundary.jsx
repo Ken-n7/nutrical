@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { resetSession } from '../hooks/useNutriCal';
 
 export default class ErrorBoundary extends Component {
   state = { error: null };
@@ -19,10 +20,8 @@ export default class ErrorBoundary extends Component {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => {
-                this.setState({ error: null });
-                window.location.reload();
-              }}
+              // Drops the saved session too, so bad saved state can't crash every reload.
+              onClick={resetSession}
             >
               Reload
             </button>

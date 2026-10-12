@@ -172,7 +172,8 @@ export const NEW_ROW_DEFAULTS = {
 // ======================
 // HELPERS
 // ======================
-let _idCounter = 1000;
+// Seeded from the clock so ids stay unique next to rows restored after a reload.
+let _idCounter = Date.now();
 
 // Single source of row ids, so generated and hand-added rows never collide.
 export const nextRowId = () => _idCounter++;

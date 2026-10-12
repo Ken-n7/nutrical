@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
-import { NEW_ROW_DEFAULTS, GROUP_KEYS, generateMealPlan, nextRowId } from '../data/mealPlanData';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { NEW_ROW_DEFAULTS, GROUP_KEYS, EMPTY_MEAL_PLAN, generateMealPlan, nextRowId } from '../data/mealPlanData';
 
 // Official FEL 4th Edition values
 const EX = {
@@ -34,6 +34,15 @@ const roundN = (n) => {
 const EXCHANGE_MAX = 20;
 const DEFAULT_DISTRIBUTION = '65,15,20';
 const snapExchange = (n) => Math.min(EXCHANGE_MAX, roundN(n));
+
+// Fill groups in order, moving whatever exceeds the per-group cap on to the next one.
+const spill = (result, keys, total) => {
+  let left = roundN(total);
+  for (const key of keys) {
+    result[key] = Math.min(EXCHANGE_MAX, left);
+    left -= result[key];
+  }
+};
 
 export { EXCHANGE_MAX, DEFAULT_DISTRIBUTION };
 
@@ -131,17 +140,37 @@ const initialExchanges = {
   fat: 0,
 };
 
+// sessionStorage: survives a reload, gone when the tab closes, so patient
+// details don't linger on a shared machine.
+const STORAGE_KEY = 'nutrical-session';
+
+function loadSession() {
+  try {
+    return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+export function resetSession() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {}
+  window.location.reload();
+}
+
 export function useNutriCal() {
-  const [patient, setPatient] = useState(initialPatient);
-  const [exchanges, setExchanges] = useState(initialExchanges);
-  const [mealPlan, setMealPlan] = useState({
-    breakfast: [],
-    amSnack: [],
-    lunch: [],
-    pmSnack: [],
-    supper: [],
-  });
+  const [saved] = useState(loadSession);
+  const [patient, setPatient] = useState({ ...initialPatient, ...saved.patient });
+  const [exchanges, setExchanges] = useState({ ...initialExchanges, ...saved.exchanges });
+  const [mealPlan, setMealPlan] = useState({ ...EMPTY_MEAL_PLAN, ...saved.mealPlan });
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ patient, exchanges, mealPlan }));
+    } catch {}
+  }, [patient, exchanges, mealPlan]);
 
   const updatePatient = useCallback((field, value) => {
     setPatient((prev) => ({ ...prev, [field]: value }));
@@ -196,13 +225,7 @@ export function useNutriCal() {
   }, []);
 
   const clearMealPlan = useCallback(() => {
-    setMealPlan({
-      breakfast: [],
-      amSnack: [],
-      lunch: [],
-      pmSnack: [],
-      supper: [],
-    });
+    setMealPlan(EMPTY_MEAL_PLAN);
   }, []);
 
   const updateMealRow = useCallback((mealKey, rowId, field, value) => {
@@ -305,9 +328,8 @@ export function useNutriCal() {
       result.milkSkim * EX.milkSkim.cho +
       result.sugar * EX.sugar.cho;
 
-    // Step 3: Rice exchanges
-    const totalRice = Math.max(0, targetCho - choPartialSum) / 23;
-    result.riceB = snapExchange(totalRice);
+    // Step 3: Rice exchanges (Rice B first; past the cap, A then C)
+    spill(result, ['riceB', 'riceA', 'riceC'], Math.max(0, targetCho - choPartialSum) / 23);
 
     // Step 4: Protein partial sum from veg + milk(s) + rice(s)
     const proteinPartialSum =
@@ -319,9 +341,8 @@ export function useNutriCal() {
       result.riceB * EX.riceB.protein +
       result.riceC * EX.riceC.protein;
 
-    // Step 5: Meat exchanges
-    const totalMeat = Math.max(0, targetProtein - proteinPartialSum) / 8;
-    result.meatMed = snapExchange(totalMeat);
+    // Step 5: Meat exchanges (Medium-fat first; past the cap, Low then High)
+    spill(result, ['meatMed', 'meatLow', 'meatHigh'], Math.max(0, targetProtein - proteinPartialSum) / 8);
 
     // Step 6: Fat partial sum from milk + meat
     const fatPartialSum =

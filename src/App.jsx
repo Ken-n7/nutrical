@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight, Loader2, Save } from 'lucide-react';
-import { useNutriCal, validatePatient } from './hooks/useNutriCal';
+import { useNutriCal, validatePatient, resetSession } from './hooks/useNutriCal';
 import { downloadMealPlanPdf } from './lib/mealPlanPdf';
 import PatientForm from './components/PatientForm';
 import AssessmentDisplay from './components/AssessmentDisplay';
@@ -83,6 +83,7 @@ export default function App() {
   // Dark only: the starfield is unreadable in light mode and the toggle is hidden.
   const [theme, setTheme] = useState('dark');
   const [saving, setSaving] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [confirmClear, setConfirmClear] = useState(null);
   const savingRef = useRef(false);
 
@@ -90,10 +91,12 @@ export default function App() {
     if (savingRef.current) return;
     savingRef.current = true;
     setSaving(true);
+    setSaveFailed(false);
     try {
       await downloadMealPlanPdf(patient);
-    } catch {
-      /* silent — browser handles the download notification */
+    } catch (err) {
+      console.error(err);
+      setSaveFailed(true);
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -232,7 +235,13 @@ export default function App() {
                 ) : (
                   <Save size={14} aria-hidden="true" />
                 )}
-                {saving ? 'Preparing PDF…' : 'Save meal plan'}
+                {/* A failed library download stays failed until reload; the session survives one. */}
+                {saving ? 'Preparing PDF…' : saveFailed ? 'Failed · Reload page' : 'Save meal plan'}
+                {saveFailed && (
+                  <span role="alert" className="sr-only">
+                    Could not create the PDF. Reload the page and try again.
+                  </span>
+                )}
               </button>
             )}
           </div>
@@ -255,13 +264,41 @@ export default function App() {
         {/* Step 1: Patient */}
         {section('patient', (
           <>
-            <StepHeading idx={0} num="1" title="Patient Information" hint="Enter the patient details to start the prescription." />
+            <StepHeading
+              idx={0}
+              num="1"
+              title="Patient Information"
+              hint="Enter the patient details to start the prescription."
+              actions={
+                <button
+                  type="button"
+                  onClick={() => setConfirmClear('all')}
+                  className="btn btn-ghost text-sm cursor-pointer"
+                  title="Clear the patient, exchanges and meal plan"
+                >
+                  {TRASH_ICON}
+                  New patient
+                </button>
+              }
+            />
             <PatientForm
               patient={patient}
               updatePatient={updatePatient}
               error={error}
             />
             {nav(null, 1, 'Continue to Assessment', false, handlePatientNext)}
+            <AnimatePresence>
+              {confirmClear === 'all' && (
+                <ConfirmDialog
+                  title="Start a new patient?"
+                  description="This will clear the patient details, exchanges and meal plan. This action cannot be undone."
+                  confirmLabel="Start new"
+                  icon={TRASH_ICON}
+                  onCancel={() => setConfirmClear(null)}
+                  onConfirm={resetSession}
+                />
+              )}
+            </AnimatePresence>
           </>
         ))}
 
