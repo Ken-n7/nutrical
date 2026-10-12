@@ -256,8 +256,8 @@ describe('useNutriCal hook', () => {
       fillPatient(result);
       const { ter, af } = result.current.assessment;
       // DBW = 48 kg, AF = 35
-      // TER = 48 * 35 = 1680 -> rounded to nearest 10 = 1680
-      expect(ter).toBe(1680);
+      // TER = 48 * 35 = 1680 -> rounded to nearest 50 = 1700
+      expect(ter).toBe(1700);
       expect(af).toBe(35);
     });
 
@@ -266,12 +266,13 @@ describe('useNutriCal hook', () => {
       fillPatient(result);
       const { targetCho, targetProtein, targetFat, dist } = result.current.assessment;
       expect(dist).toEqual([65, 15, 20]);
-      // CHO: 1680 * 0.65 / 4 = 273 g
-      expect(targetCho).toBe(273);
-      // PRO: 1680 * 0.15 / 4 = 63 g
-      expect(targetProtein).toBe(63);
-      // Fat: 1680 * 0.20 / 9 = 37.3 g -> rounded to 37 g
-      expect(targetFat).toBe(37);
+      // Grams round to the nearest 5 (FEL step 3c)
+      // CHO: 1700 * 0.65 / 4 = 276.25 -> 275 g
+      expect(targetCho).toBe(275);
+      // PRO: 1700 * 0.15 / 4 = 63.75 -> 65 g
+      expect(targetProtein).toBe(65);
+      // Fat: 1700 * 0.20 / 9 = 37.8 -> 40 g
+      expect(targetFat).toBe(40);
     });
 
     it('computes TER with different activity factor', () => {
@@ -282,8 +283,8 @@ describe('useNutriCal hook', () => {
       });
       const { ter, af } = result.current.assessment;
       // DBW = 48, AF = 40
-      // 48 * 40 = 1920 -> rounded to 1920
-      expect(ter).toBe(1920);
+      // 48 * 40 = 1920 -> rounded to nearest 50 = 1900
+      expect(ter).toBe(1900);
       expect(af).toBe(40);
     });
 
@@ -402,6 +403,36 @@ describe('useNutriCal hook', () => {
     });
   });
 
+  // FNRI Food Exchange Lists, Part 1 worked example
+  describe('FEL worked example', () => {
+    it('prescribes 1500 kcal, CHO 245 g, protein 55 g, fat 35 g for a 50 kg sedentary adult', () => {
+      const { result } = renderHook(() => useNutriCal());
+      act(() => {
+        // Hamwi: 100 lb + 2 x 5 lb = 110 lb = 50 kg
+        result.current.updatePatient('sex', 'female');
+        result.current.updatePatient('heightFt', '5');
+        result.current.updatePatient('heightIn', '2');
+        result.current.updatePatient('frame', '1');
+        result.current.updatePatient('activity', '30');
+        result.current.updatePatient('distribution', '65,15,20');
+      });
+      const { dbw, ter, afLabel, targetCho, targetProtein, targetFat } = result.current.assessment;
+      expect(dbw.kg).toBe(50);
+      expect(afLabel).toBe('Sedentary');
+      expect([ter, targetCho, targetProtein, targetFat]).toEqual([1500, 245, 55, 35]);
+    });
+
+    it('totals the Table 1.5 exchanges to 247 g CHO, 57 g protein, 34 g fat, 1522 kcal', () => {
+      const { result } = renderHook(() => useNutriCal());
+      const table15 = { veg: 3, fruit: 5, milkWhole: 1, sugar: 3, riceA: 1, riceB: 5, riceC: 1, meatLow: 2, meatMed: 2, fat: 2 };
+      act(() => {
+        for (const [key, n] of Object.entries(table15)) result.current.updateExchange(key, n);
+      });
+      const { totalCho, totalProtein, totalFat, totalKcal } = result.current.exchangeData;
+      expect([totalCho, totalProtein, totalFat, totalKcal]).toEqual([247, 57, 34, 1522]);
+    });
+  });
+
   describe('session restore', () => {
     it('restores state on remount and keeps new row ids unique', () => {
       const first = renderHook(() => useNutriCal());
@@ -451,7 +482,7 @@ describe('useNutriCal hook', () => {
       expect(ex.veg).toBe(3);
       expect(ex.fruit).toBe(3);
       expect(ex.milk).toBe(1);
-      expect(ex.sugar).toBe(2);
+      expect(ex.sugar).toBe(3);
       expect(ex.riceA).toBe(0);
       expect(ex.riceC).toBe(0);
       expect(ex.meatLow).toBe(0);

@@ -24,7 +24,7 @@ const DEFAULTS = {
   milk: 1,
   milkWhole: 0,
   milkSkim: 0,
-  sugar: 2,
+  sugar: 3, // FEL 4.1d: 3-6 sugar exchanges per day
 };
 
 const roundN = (n) => {
@@ -46,12 +46,16 @@ const spill = (result, keys, total) => {
 
 export { EXCHANGE_MAX, DEFAULT_DISTRIBUTION };
 
-const FACTOR_LABEL = {
-  30: 'Lightly active',
-  35: 'Moderately active',
-  40: 'Active',
+// FEL Table 1.1: kcal per kg DBW by occupational work intensity
+export const ACTIVITY_LEVELS = {
+  30: 'Sedentary',
+  35: 'Light',
+  40: 'Moderate',
   45: 'Very active',
 };
+
+// FEL step 3c: total calories to the nearest 50, macronutrients to the nearest 5 g
+const roundTo = (n, step) => Math.round(n / step) * step;
 
 export const fmtInt = (n) => Math.round(Number(n) || 0).toLocaleString('en-US');
 export const fmt1 = (n) => fmtInt(n);
@@ -274,12 +278,12 @@ export function useNutriCal() {
 
     // Simple method: DBW × Activity Factor
     const terRaw = dbw.kg * af;
-    const ter = Math.round(terRaw / 10) * 10;
+    const ter = roundTo(terRaw, 50);
 
     const [choPct, proteinPct, fatPct] = dist;
-    const targetCho = Math.round((ter * choPct) / 100 / 4);
-    const targetProtein = Math.round((ter * proteinPct) / 100 / 4);
-    const targetFat = Math.round((ter * fatPct) / 100 / 9);
+    const targetCho = roundTo((ter * choPct) / 100 / 4, 5);
+    const targetProtein = roundTo((ter * proteinPct) / 100 / 4, 5);
+    const targetFat = roundTo((ter * fatPct) / 100 / 9, 5);
 
     return {
       bmi,
@@ -288,7 +292,7 @@ export function useNutriCal() {
       dbwPercent,
       dbwInfo,
       af,
-      afLabel: FACTOR_LABEL[String(af)] || 'Custom',
+      afLabel: ACTIVITY_LEVELS[af] || 'Custom',
       ter,
       terRaw,
       dist,

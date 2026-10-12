@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { ACTIVITY_LEVELS } from '../hooks/useNutriCal';
 
 const VALIDATORS = {
   age: (v) => {
@@ -199,10 +200,9 @@ function PatientForm({ patient, updatePatient, error }) {
         <div>
           <label htmlFor="f-activity" className="field-label">Activity Factor</label>
           <select id="f-activity" value={patient.activity} onChange={handleChange('activity')} className="select">
-            <option value="30">Light (30 kcal/kg)</option>
-            <option value="35">Moderate (35 kcal/kg)</option>
-            <option value="40">Active (40 kcal/kg)</option>
-            <option value="45">Very Active (45 kcal/kg)</option>
+            {Object.entries(ACTIVITY_LEVELS).map(([kcal, label]) => (
+              <option key={kcal} value={kcal}>{label} ({kcal} kcal/kg)</option>
+            ))}
           </select>
           <p className="help-text">kcal per kg DBW per day</p>
         </div>

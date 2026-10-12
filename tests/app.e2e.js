@@ -101,19 +101,19 @@ describe('E2E: Default values', () => {
     await page.close();
   });
 
-  it('shows default TER of 1,680', async () => {
+  it('shows default TER of 1,700', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
     const bodyText = await page.textContent('body');
-    expect(bodyText).toContain('1,680 kcal/day');
+    expect(bodyText).toContain('1,700 kcal/day');
     await page.close();
   });
 
-  it('shows default CHO target of 273', async () => {
+  it('shows default CHO target of 275', async () => {
     const page = await createPage();
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
     const bodyText = await page.textContent('body');
-    expect(bodyText).toContain('273 g');
+    expect(bodyText).toContain('275 g');
     await page.close();
   });
 });
@@ -125,7 +125,7 @@ describe('E2E: Patient form interactions', () => {
     await page.selectOption('#f-sex', 'male');
     await page.waitForTimeout(500);
     const bodyText = await page.textContent('body');
-    expect(bodyText).toContain('1,790 kcal/day');
+    expect(bodyText).toContain('1,800 kcal/day');
     await page.close();
   });
 
@@ -135,7 +135,7 @@ describe('E2E: Patient form interactions', () => {
     await page.selectOption('#f-activity', '40');
     await page.waitForTimeout(500);
     const bodyText = await page.textContent('body');
-    expect(bodyText).toContain('1,920 kcal/day');
+    expect(bodyText).toContain('1,900 kcal/day');
     await page.close();
   });
 
@@ -145,7 +145,7 @@ describe('E2E: Patient form interactions', () => {
     await page.selectOption('#f-frame', '0.9');
     await page.waitForTimeout(500);
     const bodyText = await page.textContent('body');
-    expect(bodyText).toContain('1,510 kcal/day');
+    expect(bodyText).toContain('1,500 kcal/day');
     await page.close();
   });
 
@@ -155,7 +155,7 @@ describe('E2E: Patient form interactions', () => {
     await page.selectOption('#f-distribution', '50,20,30');
     await page.waitForTimeout(500);
     const bodyText = await page.textContent('body');
-    expect(bodyText).toContain('210 g');
+    expect(bodyText).toContain('215 g');
     await page.close();
   });
 });

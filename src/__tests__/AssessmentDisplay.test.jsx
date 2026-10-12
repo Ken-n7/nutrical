@@ -8,7 +8,7 @@ const mockAssessment = {
   dbw: { kg: 47.73, formula: '100 + (1 × 5) lb ÷ 2.2' },
   dbwInfo: { label: '126% of DBW · Overweight', color: 'bg-amber-100 text-amber-700' },
   af: 35,
-  afLabel: 'Moderately active',
+  afLabel: 'Light',
   ter: 1670,
   terRaw: 1670.55,
   dist: [65, 15, 20],
@@ -51,7 +51,7 @@ describe('AssessmentDisplay', () => {
   it('displays activity factor', () => {
     render(<AssessmentDisplay assessment={mockAssessment} />);
     expect(screen.getByText('× 35')).toBeInTheDocument();
-    expect(screen.getByText('Moderately active · kcal/kg DBW')).toBeInTheDocument();
+    expect(screen.getByText('Light · kcal/kg DBW')).toBeInTheDocument();
   });
 
   it('displays TER value', () => {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ClipboardList, X, ChevronUp } from 'lucide-react';
-import { fmt1 } from '../hooks/useNutriCal';
+import { fmt1, ACTIVITY_LEVELS } from '../hooks/useNutriCal';
 
 function Row({ label, value, strong }) {
   return (
@@ -169,10 +169,7 @@ export default function RecapSidebar({ patient, assessment, children }) {
     patient.frame === '0.9' ? 'Small' :
     patient.frame === '1.1' ? 'Large' : 'Medium';
   const height = `${parseInt(patient.heightFt, 10) || 0}′${parseInt(patient.heightIn, 10) || 0}″`;
-  const activityLabel =
-    patient.activity === '30' ? 'Light' :
-    patient.activity === '40' ? 'Active' :
-    patient.activity === '45' ? 'Very Active' : 'Moderate';
+  const activityLabel = ACTIVITY_LEVELS[patient.activity];
 
   const rows = [
     { label: 'Name', value: patient.name || '—' },
