@@ -1,7 +1,8 @@
 // ======================
 // FOOD ITEMS
-// riceA is transcribed from the FNRI Food Exchange Lists; the other groups
-// are still short sample lists waiting to be replaced the same way.
+// Lists marked "FEL p. …" are transcribed from the FNRI Food Exchange Lists
+// (page numbers are the book's printed ones). Unmarked groups are still the old
+// sample lists, waiting to be replaced the same way.
 // ======================
 export const FOOD_ITEMS = {
   veg: [
@@ -58,7 +59,7 @@ export const FOOD_ITEMS = {
     { name: 'Jam', measure: '1 tsp' },
   ],
 
-  // FEL p. 33, Rice A: Low Protein (23 g carbohydrate, zero or negligible protein).
+  // FEL p. 33, Rice A: Low Protein (23 g carbohydrate, zero or negligible protein). The full list.
   // Transcribed from the book; weight is grams of edible portion.
   riceA: [
     { category: 'Rice and Rice Products', filipino: 'Kanin, "protein-reduced"', name: 'Rice, "protein-reduced"', weight: 55, measure: '⅓ cup' },
@@ -87,20 +88,35 @@ export const FOOD_ITEMS = {
     { category: 'Others', filipino: 'Sago, tapioca', name: 'Tapioca pearls', weight: 160, measure: '¾ cup' },
   ],
 
+  // FEL pp. 34–36, Rice B: Medium Protein (23 g carbohydrate, 2 g protein). A selection.
   riceB: [
-    { name: 'Boiled rice (well-milled)', measure: '1 cup' },
-    { name: 'Brown rice, boiled', measure: '1 cup' },
-    { name: 'Noodles, boiled', measure: '1 cup' },
-    { name: 'Pancit bihon (plain)', measure: '1 cup' },
-    { name: 'Puto', measure: '1 pc' },
+    { category: 'Rice and rice products', filipino: 'Bigas, maputi, sinaing', name: 'Rice, well-milled, boiled', weight: 80, measure: '½ cup' },
+    { category: 'Rice and rice products', filipino: 'Pinawa, sinaing', name: 'Rice (undermilled/brown rice), boiled', weight: 80, measure: '½ cup' },
+    { category: 'Rice and rice products', filipino: 'Lugaw', name: 'Rice gruel, thick consistency', weight: 250, measure: '1½ cups' },
+    { category: 'Rice and rice products', filipino: 'Bibingka, galapong', name: 'Rice cake, bibingka', weight: 45, measure: '½ slice', dimension: '7 cm diameter × 3 cm' },
+    { category: 'Rice and rice products', filipino: 'Palitaw, walang niyog', name: 'Rice prep (glutinous), palitaw', weight: 50, measure: '3 pcs', dimension: '6.5 × 3.5 × 0.5 cm each' },
+    { category: 'Rice and rice products', filipino: 'Puto, puti/Puto, Calasiao', name: 'Rice cake, puto white', weight: 50, measure: '1 slice or 3–4 pcs', dimension: '4.5 × 3.5 × 5.5 cm, or 4 cm diameter × 2 cm each' },
+    { category: 'Rice and rice products', filipino: 'Suman sa ibos', name: 'Rice prep (glutinous), ibos', weight: 60, measure: '1 pc', dimension: '11 × 2.5 × 2.5 cm' },
+    { category: 'Bakery Products', filipino: 'Marie', name: 'Cookies, marie', weight: 25, measure: '8 pcs', dimension: '6 cm diameter × 0.5 cm each' },
+    { category: 'Bakery Products', filipino: 'Sponge cake', name: 'Cake, sponge', weight: 35, measure: '1 slice', dimension: '7.5 × 4 × 4 cm' },
+    { category: 'Corn and corn products', filipino: 'Corn flakes', name: 'Corn flakes', weight: 25, measure: '½ cup' },
+    { category: 'Corn and corn products', filipino: 'Mais butil, de lata', name: 'Corn, whole kernel, cnd', weight: 160, measure: '1 cup' },
+    { category: 'Corn and corn products', filipino: 'Mais sa busal (dilaw, puti)', name: 'Corn on cob (yellow, white)', weight: 65, measure: '½ pc', dimension: '12.5 × 4 cm (AP)' },
+    { category: 'Rootcrop', filipino: 'Patatas', name: 'Potato', weight: 170, measure: '1 pc or 1¼ cup, cubed', dimension: '6 cm diameter × 8 cm' },
   ],
 
+  // FEL p. 37, Rice C: High Protein (23 g carbohydrate, 4 g protein). A selection.
   riceC: [
-    { name: 'Pan de sal', measure: '1½ pcs' },
-    { name: 'Wheat bread', measure: '1 slice' },
-    { name: 'Oatmeal, cooked', measure: '¾ cup' },
-    { name: 'Cornflakes', measure: '¾ cup' },
-    { name: 'Graham crackers', measure: '2 pcs' },
+    { category: 'Bakery products', filipino: 'Pan de sal', name: 'Bread, pan de sal', weight: 35, measure: '1½ pcs', dimension: '7 × 6 × 3.5 cm' },
+    { category: 'Bakery products', filipino: 'Loaf bread/Pan Amerikano', name: 'Bread, white, loaf', weight: 35, measure: '2 pcs or 1½ pcs', dimension: '7.5 × 6.5 × 1.5 cm each, or 10 × 9.5 × 1.5 cm' },
+    { category: 'Bakery products', filipino: 'Bread, wheat', name: 'Bread, wheat', weight: 40, measure: '1½ pcs', dimension: '10 × 9.5 × 1.5 cm' },
+    { category: 'Bakery products', filipino: 'Ensaymada', name: 'Bread, sweet roll', weight: 35, measure: '1 pc or ½ pc', dimension: '6.5 cm diameter × 4 cm, or 11.5 cm diameter × 3.5 cm' },
+    { category: 'Bakery products', filipino: 'Hamburger bun', name: 'Bread, hamburger bun', weight: 35, measure: '1 pc', dimension: '13 × 5.5 × 3 cm' },
+    { category: 'Bakery products', filipino: 'Hotdog roll', name: 'Bread, hotdog roll', weight: 35, measure: '1 pc', dimension: '8 cm diameter × 4.5 cm' },
+    { category: 'Bakery products', filipino: 'Pan de monay', name: 'Bread, pan de monay', weight: 35, measure: '½ pc', dimension: '8.5 × 8 × 6.5 cm' },
+    { category: 'Bakery products', filipino: 'Tinapay, tostado', name: 'Bread, toast/toasted', weight: 30, measure: '5 pcs or 1½ pc', dimension: '4.5 × 3.5 × 1 cm each, or 9 × 9 × 1 cm' },
+    { category: 'Noodles and Pasta', filipino: 'Pasta (enriched/unenriched)', name: 'Pasta (enriched/unenriched)', weight: 70, measure: '½ cup' },
+    { category: 'Others', filipino: 'Balat ng lumpia', name: 'Spring roll wrapper, plain', weight: 35, measure: '7 pcs', dimension: '16.5 cm diameter each' },
   ],
 
   meatLow: [
@@ -178,6 +194,8 @@ export const FOOD_MEASURE_MAX = 40;
 // menu choice (Table 1.7) where it has one. Groups not listed use their first food.
 export const DEFAULT_FOOD = {
   riceA: 'Sweet potato (yellow, purple, white)',
+  riceB: 'Rice, well-milled, boiled',
+  riceC: 'Bread, pan de sal',
 };
 
 // "Gabi (Taro)"; a single name when Filipino and English are the same.
